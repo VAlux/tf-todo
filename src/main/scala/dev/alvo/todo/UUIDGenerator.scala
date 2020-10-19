@@ -9,8 +9,7 @@ trait UUIDGenerator[F[_]] {
 }
 
 object UUIDGenerator {
-  implicit def dsl[F[_]](implicit F: Sync[F]): UUIDGenerator[F] =
-    new UUIDGenerator[F] {
-      override def generate: F[UUID] = F.delay(UUID.randomUUID())
-    }
+  implicit def dsl[F[_]](implicit F: Sync[F]): UUIDGenerator[F] = new UUIDGenerator[F] {
+    override def generate: F[UUID] = F.delay(UUID.randomUUID())
+  }
 }

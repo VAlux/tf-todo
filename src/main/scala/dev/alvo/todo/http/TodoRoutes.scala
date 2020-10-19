@@ -1,12 +1,12 @@
-package dev.alvo.todo
+package dev.alvo.todo.http
 
 import cats.effect.Sync
-import cats.implicits._
 import dev.alvo.todo.storage.TodoStorage
 import dev.alvo.todo.storage.model.Task
 import org.http4s.HttpRoutes
-import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.dsl.Http4sDsl
+import cats.implicits._
+import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 
 object TodoRoutes {
 
@@ -23,6 +23,8 @@ object TodoRoutes {
         } yield response
       case GET -> Root / "todo" =>
         Ok(todo.getAll)
+      case GET -> Root / "todo" / todoId =>
+        Ok(todo.get(todoId))
     }
   }
 }

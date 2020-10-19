@@ -3,7 +3,7 @@ package dev.alvo.todo
 import cats.effect.concurrent.Ref
 import cats.effect.{ConcurrentEffect, ContextShift, ExitCode, IO, IOApp, Timer}
 import cats.implicits._
-import dev.alvo.todo.TodoRoutes.todoServiceRoutes
+import dev.alvo.todo.http.TodoRoutes.todoServiceRoutes
 import dev.alvo.todo.UUIDGenerator.dsl
 import dev.alvo.todo.storage.InMemoryTodoStorage
 import dev.alvo.todo.storage.model.Task

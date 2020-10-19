@@ -6,7 +6,7 @@ import io.circe.{Decoder, Encoder}
 import org.http4s.circe.{jsonEncoderOf, jsonOf}
 import org.http4s.{EntityDecoder, EntityEncoder}
 
-final case class Task(id: String, action: String)
+final case class Task(action: String)
 
 object Task {
   implicit val taskDecoder: Decoder[Task] = deriveDecoder

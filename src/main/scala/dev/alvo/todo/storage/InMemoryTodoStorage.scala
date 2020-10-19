@@ -11,7 +11,7 @@ object InMemoryTodoStorage {
 
   def dsl[F[_]](storage: Ref[F, Map[String, Task]])(implicit F: Sync[F], Gen: UUIDGenerator[F]): TodoStorage[F] =
     new TodoStorage[F] {
-      override def add(task: Task): F[Unit] = storage.update(s => s.updated(Gen.generate.toString, task))
+      override def add(task: Task): F[Unit] = Gen.generate.flatMap(id => storage.update(_.updated(id.toString, task)))
 
       override def get(id: String): F[Option[Task]] = storage.get.map(_.get(id))
 
@@ -19,6 +19,6 @@ object InMemoryTodoStorage {
 
       override def clear(): F[Unit] = storage.update(_ => Map.empty)
 
-      override def getAll: F[TasksModel] = storage.get.map(s => TasksModel(s.values.toSeq))
+      override def getAll: F[TasksModel] = storage.get.map(s => TasksModel(s.toList))
     }
 }
