@@ -3,7 +3,8 @@ package dev.alvo.todo
 import cats.effect.concurrent.Ref
 import cats.effect.{IO, Sync}
 import cats.implicits._
-import dev.alvo.todo.TodoStorage.Task
+import dev.alvo.todo.storage.model.Task
+import dev.alvo.todo.storage.InMemoryTodoStorage
 import org.http4s._
 import org.http4s.implicits._
 import org.specs2.matcher.MatchResult
@@ -19,12 +20,12 @@ class TodoStorageSpec extends org.specs2.mutable.Specification {
     }
   }
 
-  private[this] def createService[F[_] : Sync](request: Request[F]): F[Response[F]] = for {
-    storage <- Ref.of(Map.empty[String, Task])
-    service = TodoStorage.impl(storage)
-    todo <- TodoRoutes.todoServiceRoutes(service).orNotFound(request)
-  } yield todo
-
+  private[this] def createService[F[_]: Sync](request: Request[F]): F[Response[F]] =
+    for {
+      storage <- Ref.of(Map.empty[String, Task])
+      service = InMemoryTodoStorage.dsl(storage)
+      todo <- TodoRoutes.todoServiceRoutes(service).orNotFound(request)
+    } yield todo
 
   private[this] val retAllTodo: Response[IO] =
     createService[IO](Request(Method.GET, uri"/todo")).unsafeRunSync()

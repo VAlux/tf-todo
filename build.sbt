@@ -9,6 +9,7 @@ lazy val root = (project in file("."))
     name := "todo",
     version := "0.0.1-SNAPSHOT",
     scalaVersion := "2.13.2",
+    scalafmtOnCompile := true,
     libraryDependencies ++= Seq(
       "org.http4s"      %% "http4s-blaze-server" % Http4sVersion,
       "org.http4s"      %% "http4s-blaze-client" % Http4sVersion,
