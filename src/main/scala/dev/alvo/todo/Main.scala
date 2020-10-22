@@ -3,8 +3,8 @@ package dev.alvo.todo
 import cats.effect.concurrent.Ref
 import cats.effect.{ConcurrentEffect, ContextShift, ExitCode, IO, IOApp, Timer}
 import cats.implicits._
-import dev.alvo.todo.http.TodoRoutes.todoServiceRoutes
 import dev.alvo.todo.UUIDGenerator.dsl
+import dev.alvo.todo.http.TodoRoutes.todoServiceRoutes
 import dev.alvo.todo.storage.InMemoryTodoStorage
 import dev.alvo.todo.storage.model.Task
 import fs2.Stream
@@ -17,7 +17,7 @@ import scala.concurrent.ExecutionContext.global
 object Main extends IOApp {
   def stream[F[_]: ConcurrentEffect: UUIDGenerator](implicit T: Timer[F], C: ContextShift[F]): Stream[F, Nothing] = {
     for {
-      todoService <- Stream.eval(Ref.of(Map.empty[String, Task]).map(store => InMemoryTodoStorage.dsl(store)))
+      todoService <- Stream.eval(Ref.of(Map.empty[String, Task.Existing]).map(store => InMemoryTodoStorage.dsl(store)))
       todoRoutes = todoServiceRoutes(todoService)
       finalHttpApp = Logger.httpApp(logHeaders = true, logBody = true)(todoRoutes.orNotFound)
       exitCode <- BlazeServerBuilder[F](global)

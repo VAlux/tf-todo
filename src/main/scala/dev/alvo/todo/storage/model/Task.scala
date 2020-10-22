@@ -1,19 +1,11 @@
 package dev.alvo.todo.storage.model
 
-import cats.effect.Sync
-import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import io.circe.{Decoder, Encoder}
-import org.http4s.circe.{jsonEncoderOf, jsonOf}
-import org.http4s.{EntityDecoder, EntityEncoder}
-
-final case class Task(action: String)
+sealed abstract class Task(action: String) extends Product with Serializable
 
 object Task {
-  implicit val taskDecoder: Decoder[Task] = deriveDecoder
 
-  implicit def taskEntityDecoder[F[_]: Sync]: EntityDecoder[F, Task] = jsonOf
+  final case class New(action: String) extends Task(action)
 
-  implicit val taskEncoder: Encoder[Task] = deriveEncoder
+  final case class Existing(id: String, action: String) extends Task(action)
 
-  implicit def taskEntityEncoder[F[_]: Sync]: EntityEncoder[F, Task] = jsonEncoderOf
 }
