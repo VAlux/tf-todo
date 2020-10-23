@@ -6,7 +6,7 @@ import io.circe.generic.semiauto.deriveDecoder
 import org.http4s.EntityDecoder
 import org.http4s.circe.jsonOf
 
-case class CreateTaskRequest(action: String)
+final case class CreateTaskRequest(action: String)
 
 object CreateTaskRequest {
   implicit val createTaskRequestDecoder: Decoder[CreateTaskRequest] = deriveDecoder

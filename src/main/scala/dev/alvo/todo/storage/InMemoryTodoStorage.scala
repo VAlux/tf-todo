@@ -23,5 +23,8 @@ object InMemoryTodoStorage {
       override def clear(): F[Unit] = storage.update(_ => Map.empty)
 
       override def getAll: F[List[Task.Existing]] = storage.get.map(s => s.values.toList)
+
+      override def update(id: String, task: Task.New): F[Option[Task.Existing]] =
+        storage.update(s => s.updated(id, Task.Existing(id, task.action))) >> get(id)
     }
 }

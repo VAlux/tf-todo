@@ -7,6 +7,8 @@ trait TodoStorage[F[_]] {
 
   def get(id: String): F[Option[Task.Existing]]
 
+  def update(id: String, task: Task.New): F[Option[Task.Existing]]
+
   def getAll: F[List[Task.Existing]]
 
   def remove(id: String): F[Unit]
