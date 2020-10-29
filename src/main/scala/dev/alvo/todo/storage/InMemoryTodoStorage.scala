@@ -3,18 +3,19 @@ package dev.alvo.todo.storage
 import cats.effect.Sync
 import cats.effect.concurrent.Ref
 import cats.implicits._
-import dev.alvo.todo.UUIDGenerator
 import dev.alvo.todo.storage.model.Task
-
-import scala.util.chaining._
+import util.UUIDGenerator
 
 object InMemoryTodoStorage {
 
-  def dsl[F[_]: Sync: UUIDGenerator](storage: Ref[F, Map[String, Task.Existing]]): TodoStorage[F] =
+  def dsl[F[_]: Sync](storage: Ref[F, Map[String, Task.Existing]])(implicit G: F[UUIDGenerator[F]]): TodoStorage[F] =
     new TodoStorage[F] {
       override def add(task: Task.New): F[Option[Task.Existing]] =
-        implicitly[UUIDGenerator[F]].generate
-          .flatMap(_.toString.pipe(id => storage.update(_.updated(id, Task.Existing(id, task.action))) >> get(id)))
+        for {
+          id <- G.flatMap(_.generate.map(_.toString))
+          _ <- storage.update(_.updated(id, Task.Existing(id, task.action)))
+          added <- get(id)
+        } yield added
 
       override def get(id: String): F[Option[Task.Existing]] = storage.get.map(_.get(id))
 
@@ -25,6 +26,6 @@ object InMemoryTodoStorage {
       override def getAll: F[List[Task.Existing]] = storage.get.map(s => s.values.toList)
 
       override def update(id: String, task: Task.New): F[Option[Task.Existing]] =
-        storage.update(s => s.updated(id, Task.Existing(id, task.action))) >> get(id)
+        storage.update(_.updated(id, Task.Existing(id, task.action))) >> get(id)
     }
 }

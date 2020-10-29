@@ -13,37 +13,31 @@ import org.http4s.dsl.Http4sDsl
 
 import scala.util.chaining._
 
-object TodoRoutes {
-
-  def todoServiceRoutes[F[_]: Sync](todo: TodoStorage[F]): HttpRoutes[F] = {
-    val dsl = new Http4sDsl[F] {}
-    import dsl._
-
-    HttpRoutes.of[F] {
-      case request @ POST -> Root / "todo" =>
-        for {
-          task <- request.as[CreateTaskRequest]
-          added <- todo.add(Task.New(task.action))
-          response <- added.map(task => Ok(RetrieveTaskResponse(task.id, task.action))).getOrElse(NotFound())
-        } yield response
-      case request @ PATCH -> Root / "todo" / todoId =>
-        for {
-          request <- request.as[CreateTaskRequest]
-          updated <- todo.update(todoId, Task.New(request.action))
-          response <- updated.map(task => Ok(RetrieveTaskResponse(task.id, task.action))).getOrElse(NotFound())
-        } yield response
-      case GET -> Root / "todo" =>
-        for {
-          tasks <- todo.getAll
-          response <- tasks.map(task => RetrieveTaskResponse(task.id, task.action)).pipe(Ok(_))
-        } yield response
-      case GET -> Root / "todo" / todoId =>
-        for {
-          existing <- todo.get(todoId)
-          response <- existing.map(task => Ok(RetrieveTaskResponse(task.id, task.action))).getOrElse(NotFound())
-        } yield response
-      case DELETE -> Root / "todo" / todoId =>
-        todo.remove(todoId) >> Ok(s"Todo with id $todoId is removed!")
-    }
+class TodoRoutes[F[_]: Sync](todo: TodoStorage[F]) extends Http4sDsl[F] {
+  val todoServiceRoutes: HttpRoutes[F] = HttpRoutes.of[F] {
+    case request @ POST -> Root / "todo" =>
+      for {
+        task <- request.as[CreateTaskRequest]
+        added <- todo.add(Task.New(task.action))
+        response <- added.map(task => Ok(RetrieveTaskResponse(task.id, task.action))).getOrElse(NotFound())
+      } yield response
+    case request @ PATCH -> Root / "todo" / todoId =>
+      for {
+        task <- request.as[CreateTaskRequest]
+        updated <- todo.update(todoId, Task.New(task.action))
+        response <- updated.map(task => Ok(RetrieveTaskResponse(task.id, task.action))).getOrElse(NotFound())
+      } yield response
+    case GET -> Root / "todo" =>
+      for {
+        tasks <- todo.getAll
+        response <- tasks.map(task => RetrieveTaskResponse(task.id, task.action)).pipe(Ok(_))
+      } yield response
+    case GET -> Root / "todo" / todoId =>
+      for {
+        existing <- todo.get(todoId)
+        response <- existing.map(task => Ok(RetrieveTaskResponse(task.id, task.action))).getOrElse(NotFound())
+      } yield response
+    case DELETE -> Root / "todo" / todoId =>
+      todo.remove(todoId) >> Ok(s"Todo with id $todoId is removed!")
   }
 }

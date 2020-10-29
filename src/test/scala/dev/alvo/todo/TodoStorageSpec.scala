@@ -25,7 +25,7 @@ class TodoStorageSpec extends org.specs2.mutable.Specification {
     for {
       storage <- Ref.of(Map.empty[String, Task.Existing])
       service = InMemoryTodoStorage.dsl(storage)
-      todo <- TodoRoutes.todoServiceRoutes(service).orNotFound(request)
+      todo <- new TodoRoutes(service).todoServiceRoutes.orNotFound(request)
     } yield todo
 
   private[this] val retAllTodo: Response[IO] =
@@ -35,5 +35,5 @@ class TodoStorageSpec extends org.specs2.mutable.Specification {
     retAllTodo.status must beEqualTo(Status.Ok)
 
   private[this] def retrieveEmptyTodoList(): MatchResult[String] =
-    retAllTodo.as[String].unsafeRunSync() must beEqualTo("{\"tasks\":[]}")
+    retAllTodo.as[String].unsafeRunSync() must beEqualTo("[]")
 }
