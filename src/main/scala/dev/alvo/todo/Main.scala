@@ -1,14 +1,10 @@
 package dev.alvo.todo
 
-import cats.effect.concurrent.Ref
 import cats.effect.{ConcurrentEffect, ContextShift, ExitCode, IO, IOApp, Timer}
-import cats.implicits._
 import dev.alvo.todo.config.{ConfigurationBasis, ConfigurationReader}
-import dev.alvo.todo.http.TodoRoutes
-import dev.alvo.todo.storage.InMemoryTodoStorage
-import dev.alvo.todo.storage.model.Task
+import dev.alvo.todo.http.App
 import fs2.Stream
-import org.http4s.implicits._
+import org.http4s.HttpApp
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.server.middleware.Logger
 import pureconfig.error.ConfigReaderFailures
@@ -25,13 +21,12 @@ object Main extends IOApp {
   }
 
   def stream[F[_]: ConcurrentEffect](
-    Conf: ConfigurationReader[F]
+    conf: ConfigurationReader[F],
+    app: HttpApp[F]
   )(implicit T: Timer[F], C: ContextShift[F]): Stream[F, Nothing] = {
     for {
-      conf <- Stream.eval(Conf.loadConfiguration).map(_.fold(processConfigurationLoadingError, identity))
-      todoService <- Stream.eval(Ref.of(Map.empty[String, Task.Existing]).map(InMemoryTodoStorage.dsl(_)))
-      todoRoutes = new TodoRoutes[F](todoService).todoServiceRoutes
-      finalHttpApp = Logger.httpApp(logHeaders = conf.log.logHeaders, logBody = conf.log.logBody)(todoRoutes.orNotFound)
+      conf <- Stream.eval(conf.loadConfiguration).map(_.fold(processConfigurationLoadingError, identity))
+      finalHttpApp = Logger.httpApp(logHeaders = conf.log.logHeaders, logBody = conf.log.logBody)(app)
       exitCode <- BlazeServerBuilder[F](global)
         .bindHttp(conf.http.port, conf.http.host)
         .withHttpApp(finalHttpApp)
@@ -41,7 +36,8 @@ object Main extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] =
     for {
+      app <- App.create[IO]
       config <- ConfigurationReader[IO]
-      server <- stream[IO](config).compile.drain.as(ExitCode.Success)
+      server <- stream[IO](config, app).compile.drain.as(ExitCode.Success)
     } yield server
 }

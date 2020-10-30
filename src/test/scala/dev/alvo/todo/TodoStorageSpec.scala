@@ -3,7 +3,7 @@ package dev.alvo.todo
 import cats.effect.concurrent.Ref
 import cats.effect.{IO, Sync}
 import cats.implicits._
-import dev.alvo.todo.http.TodoRoutes
+import dev.alvo.todo.http.routes.TodoRoutes
 import dev.alvo.todo.storage.InMemoryTodoStorage
 import dev.alvo.todo.storage.model.Task
 import org.http4s._

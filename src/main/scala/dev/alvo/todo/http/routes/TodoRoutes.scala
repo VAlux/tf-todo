@@ -1,4 +1,4 @@
-package dev.alvo.todo.http
+package dev.alvo.todo.http.routes
 
 import cats.effect.Sync
 import cats.implicits._
@@ -15,29 +15,29 @@ import scala.util.chaining._
 
 class TodoRoutes[F[_]: Sync](todo: TodoStorage[F]) extends Http4sDsl[F] {
   val todoServiceRoutes: HttpRoutes[F] = HttpRoutes.of[F] {
-    case request @ POST -> Root / "todo" =>
+    case request @ POST -> Root =>
       for {
         task <- request.as[CreateTaskRequest]
         added <- todo.add(Task.New(task.action))
         response <- added.map(task => Ok(RetrieveTaskResponse(task.id, task.action))).getOrElse(NotFound())
       } yield response
-    case request @ PATCH -> Root / "todo" / todoId =>
+    case request @ PATCH -> Root / todoId =>
       for {
         task <- request.as[CreateTaskRequest]
         updated <- todo.update(todoId, Task.New(task.action))
         response <- updated.map(task => Ok(RetrieveTaskResponse(task.id, task.action))).getOrElse(NotFound())
       } yield response
-    case GET -> Root / "todo" =>
+    case GET -> Root =>
       for {
         tasks <- todo.getAll
         response <- tasks.map(task => RetrieveTaskResponse(task.id, task.action)).pipe(Ok(_))
       } yield response
-    case GET -> Root / "todo" / todoId =>
+    case GET -> Root / todoId =>
       for {
         existing <- todo.get(todoId)
         response <- existing.map(task => Ok(RetrieveTaskResponse(task.id, task.action))).getOrElse(NotFound())
       } yield response
-    case DELETE -> Root / "todo" / todoId =>
+    case DELETE -> Root / todoId =>
       todo.remove(todoId) >> Ok(s"Todo with id $todoId is removed!")
   }
 }
