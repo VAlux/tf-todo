@@ -31,7 +31,7 @@ class TodoStorageSpec extends org.specs2.mutable.Specification {
     } yield todo
 
   private[this] val retAllTodo: Response[IO] =
-    createService[IO](Request(Method.GET, uri"/todo")).unsafeRunSync()
+    createService[IO](Request(Method.GET, uri"/")).unsafeRunSync()
 
   private[this] def uriReturns200(): MatchResult[Status] =
     retAllTodo.status must beEqualTo(Status.Ok)

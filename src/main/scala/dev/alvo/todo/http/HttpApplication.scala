@@ -14,8 +14,8 @@ object HttpApplication {
   def createEntrypoint[F[_]: ConcurrentEffect]: F[HttpApp[F]] =
     for {
       generator <- UUIDGenerator[F]
-      todoService <- Ref.of(Map.empty[String, Task.Existing])
-      storage <- InMemoryTodoStorage[F](todoService, generator)
-      todoController <- TodoController.create(storage)
+      storage <- Ref.of(Map.empty[String, Task.Existing])
+      service <- InMemoryTodoStorage[F](storage, generator)
+      todoController <- TodoController.create(service)
     } yield Entrypoint.forControllers(todoController)
 }
