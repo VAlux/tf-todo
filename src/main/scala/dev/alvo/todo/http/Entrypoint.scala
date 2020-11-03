@@ -11,7 +11,7 @@ import scala.util.chaining._
 
 object Entrypoint {
 
-  def create[F[_]: ConcurrentEffect](first: Controller[F], remaining: Controller[F]*): HttpApp[F] =
+  def forControllers[F[_]: ConcurrentEffect](first: Controller[F], remaining: Controller[F]*): HttpApp[F] =
     (first +: remaining)
       .map(_.routes)
       .reduceLeft(_ <+> _)

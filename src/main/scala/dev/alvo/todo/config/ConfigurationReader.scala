@@ -6,7 +6,7 @@ import pureconfig.generic.ProductHint
 import pureconfig.generic.auto._
 
 trait ConfigurationReader[F[_]] {
-  def loadConfiguration: F[ConfigReader.Result[ConfigurationBasis]]
+  def loadConfiguration: F[ConfigReader.Result[Configuration]]
 }
 
 object ConfigurationReader {
@@ -16,7 +16,7 @@ object ConfigurationReader {
 
   implicit def dsl[F[_]](implicit F: Sync[F]): F[ConfigurationReader[F]] = F.delay {
     new ConfigurationReader[F] {
-      override def loadConfiguration: F[ConfigReader.Result[ConfigurationBasis]] = F.delay(ConfigSource.default.load)
+      override def loadConfiguration: F[ConfigReader.Result[Configuration]] = F.delay(ConfigSource.default.load)
     }
   }
 }

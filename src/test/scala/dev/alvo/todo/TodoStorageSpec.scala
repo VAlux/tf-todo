@@ -9,6 +9,7 @@ import dev.alvo.todo.storage.model.Task
 import org.http4s._
 import org.http4s.implicits._
 import org.specs2.matcher.MatchResult
+import utils.UUIDGenerator
 
 class TodoStorageSpec extends org.specs2.mutable.Specification {
 
@@ -24,7 +25,8 @@ class TodoStorageSpec extends org.specs2.mutable.Specification {
   private[this] def createService[F[_]: Sync](request: Request[F]): F[Response[F]] =
     for {
       storage <- Ref.of(Map.empty[String, Task.Existing])
-      service = InMemoryTodoStorage.dsl(storage)
+      generator <- UUIDGenerator[F]
+      service <- InMemoryTodoStorage(storage, generator)
       todo <- new TodoRoutes(service).todoServiceRoutes.orNotFound(request)
     } yield todo
 

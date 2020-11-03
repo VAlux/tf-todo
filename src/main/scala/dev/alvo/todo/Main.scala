@@ -1,8 +1,8 @@
 package dev.alvo.todo
 
 import cats.effect.{ConcurrentEffect, ContextShift, ExitCode, IO, IOApp, Timer}
-import dev.alvo.todo.config.{ConfigurationBasis, ConfigurationReader}
-import dev.alvo.todo.http.App
+import dev.alvo.todo.config.{Configuration, ConfigurationReader}
+import dev.alvo.todo.http.HttpApplication
 import fs2.Stream
 import org.http4s.HttpApp
 import org.http4s.server.blaze.BlazeServerBuilder
@@ -13,17 +13,17 @@ import scala.concurrent.ExecutionContext.global
 
 object Main extends IOApp {
 
-  private def processConfigurationLoadingError(error: ConfigReaderFailures): ConfigurationBasis = {
+  private def processConfigurationLoadingError(error: ConfigReaderFailures): Configuration = {
     Console.err.println("Error reading configuration:")
     Console.err.println(error.prettyPrint())
     Console.err.println("Falling back to the default one...")
-    ConfigurationBasis.default
+    Configuration.default
   }
 
-  def stream[F[_]: ConcurrentEffect](
+  def stream[F[_]: ConcurrentEffect: Timer: ContextShift](
     conf: ConfigurationReader[F],
     app: HttpApp[F]
-  )(implicit T: Timer[F], C: ContextShift[F]): Stream[F, Nothing] = {
+  ): Stream[F, ExitCode] =
     for {
       conf <- Stream.eval(conf.loadConfiguration).map(_.fold(processConfigurationLoadingError, identity))
       finalHttpApp = Logger.httpApp(logHeaders = conf.log.logHeaders, logBody = conf.log.logBody)(app)
@@ -32,11 +32,10 @@ object Main extends IOApp {
         .withHttpApp(finalHttpApp)
         .serve
     } yield exitCode
-  }.drain
 
   def run(args: List[String]): IO[ExitCode] =
     for {
-      app <- App.create[IO]
+      app <- HttpApplication.createEntrypoint[IO]
       config <- ConfigurationReader[IO]
       server <- stream[IO](config, app).compile.drain.as(ExitCode.Success)
     } yield server

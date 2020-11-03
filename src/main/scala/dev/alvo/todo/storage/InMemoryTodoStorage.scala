@@ -4,17 +4,17 @@ import cats.effect.Sync
 import cats.effect.concurrent.Ref
 import cats.implicits._
 import dev.alvo.todo.storage.model.Task
-import util.UUIDGenerator
+import utils.UUIDGenerator
 
 object InMemoryTodoStorage {
-  def apply[F[_]](
-    storage: Ref[F, Map[String, Task.Existing]]
-  )(implicit F: Sync[F], G: F[UUIDGenerator[F]]): F[TodoStorage[F]] =
+  def apply[F[_]](storage: Ref[F, Map[String, Task.Existing]], uuid: UUIDGenerator[F])(
+    implicit F: Sync[F]
+  ): F[TodoStorage[F]] =
     F.delay {
       new TodoStorage[F] {
         override def add(task: Task.New): F[Option[Task.Existing]] =
           for {
-            id <- G.flatMap(_.generate.map(_.toString))
+            id <- uuid.generate.map(_.toString)
             _ <- storage.update(_.updated(id, Task.Existing(id, task.action)))
             added <- get(id)
           } yield added

@@ -4,6 +4,7 @@ val Specs2Version = "4.10.0"
 val LogbackVersion = "1.2.3"
 val TypesafeConfigVersion = "1.4.0"
 val PureconfigVersion = "0.14.0"
+val MongoDriverVersion = "2.9.0"
 
 lazy val root = (project in file("."))
   .settings(
@@ -21,6 +22,7 @@ lazy val root = (project in file("."))
       "io.circe"              %% "circe-core"          % CirceVersion,
       "org.specs2"            %% "specs2-core"         % Specs2Version % "test",
       "ch.qos.logback"        %  "logback-classic"     % LogbackVersion,
+      "org.mongodb.scala"     %% "mongo-scala-driver"  % MongoDriverVersion,
       "com.github.pureconfig" %% "pureconfig"          % PureconfigVersion
     ),
     addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
