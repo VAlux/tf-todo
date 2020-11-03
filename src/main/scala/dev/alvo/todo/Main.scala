@@ -20,13 +20,9 @@ object Main extends IOApp {
     Configuration.default
   }
 
-  def stream[F[_]: ConcurrentEffect: Timer: ContextShift](
-    conf: ConfigurationReader[F],
-    app: HttpApp[F]
-  ): Stream[F, ExitCode] =
+  def stream[F[_]: ConcurrentEffect: Timer: ContextShift](conf: Configuration, app: HttpApp[F]): Stream[F, ExitCode] =
     for {
-      conf <- Stream.eval(conf.loadConfiguration).map(_.fold(processConfigurationLoadingError, identity))
-      finalHttpApp = Logger.httpApp(logHeaders = conf.log.logHeaders, logBody = conf.log.logBody)(app)
+      finalHttpApp <- Stream(Logger.httpApp(logHeaders = conf.log.logHeaders, logBody = conf.log.logBody)(app))
       exitCode <- BlazeServerBuilder[F](global)
         .bindHttp(conf.http.port, conf.http.host)
         .withHttpApp(finalHttpApp)
@@ -35,8 +31,11 @@ object Main extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] =
     for {
-      app <- HttpApplication.createEntrypoint[IO]
-      config <- ConfigurationReader[IO]
+      config <- ConfigurationReader
+        .dsl[IO]
+        .flatMap(_.loadConfiguration)
+        .map(_.fold(processConfigurationLoadingError, identity))
+      app <- HttpApplication.createEntrypoint[IO](config)
       server <- stream[IO](config, app).compile.drain.as(ExitCode.Success)
     } yield server
 }

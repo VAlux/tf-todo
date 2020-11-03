@@ -39,5 +39,7 @@ class TodoRoutes[F[_]: Sync](todo: TodoStorage[F]) extends Http4sDsl[F] {
       } yield response
     case DELETE -> Root / todoId =>
       todo.remove(todoId) >> Ok(s"Todo with id $todoId is removed!")
+    case DELETE -> Root =>
+      todo.clear() >> Ok(s"All todos are removed!")
   }
 }
