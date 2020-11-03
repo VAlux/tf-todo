@@ -2,7 +2,7 @@ package dev.alvo.todo
 
 import cats.effect.{ConcurrentEffect, ContextShift, ExitCode, IO, IOApp, Timer}
 import dev.alvo.todo.config.{Configuration, ConfigurationReader}
-import dev.alvo.todo.http.HttpApplication
+import dev.alvo.todo.http.application.MongodbStorageHttpApplication
 import fs2.Stream
 import org.http4s.HttpApp
 import org.http4s.server.blaze.BlazeServerBuilder
@@ -35,7 +35,7 @@ object Main extends IOApp {
         .dsl[IO]
         .flatMap(_.loadConfiguration)
         .map(_.fold(processConfigurationLoadingError, identity))
-      app <- HttpApplication.createEntrypoint[IO](config)
+      app <- MongodbStorageHttpApplication[IO].flatMap(_.createEntrypoint(config))
       server <- stream[IO](config, app).compile.drain.as(ExitCode.Success)
     } yield server
 }

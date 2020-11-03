@@ -1,7 +1,5 @@
 package dev.alvo.todo.storage
 
-import java.util.concurrent.Executors
-
 import cats.effect.{Async, ContextShift}
 import cats.implicits._
 import dev.alvo.todo.database.MongoDb
@@ -11,15 +9,10 @@ import org.mongodb.scala.Observable
 import org.mongodb.scala.model.Filters
 import utils.UUIDGenerator
 
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService}
-
 object MongodbTodoStorage {
 
-  implicit private[this] val context: ExecutionContextExecutorService =
-    ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(4))
-
-  def apply[F[_]: ContextShift](database: MongoDb[F], uuid: UUIDGenerator[F])(implicit F: Async[F]): F[TodoStorage[F]] =
-    database.getDatabase("todo").map(_.getCollection[Task.Existing]("todos")).map { collection =>
+  def apply[F[_]: ContextShift](mongoDsl: MongoDb[F], uuid: UUIDGenerator[F])(implicit F: Async[F]): F[TodoStorage[F]] =
+    mongoDsl.getDatabase("todo").map(_.getCollection[Task.Existing]("todos")).map { collection =>
       new TodoStorage[F] {
         override def add(task: Task.New): F[Option[Task.Existing]] =
           for {
