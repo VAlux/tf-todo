@@ -7,6 +7,7 @@ val PureconfigVersion = "0.14.0"
 val MongoDriverVersion = "2.9.0"
 
 lazy val root = (project in file("."))
+  .enablePlugins(NativeImagePlugin)
   .settings(
     organization := "dev.alvo",
     name := "todo",
@@ -25,6 +26,7 @@ lazy val root = (project in file("."))
       "org.mongodb.scala"     %% "mongo-scala-driver"  % MongoDriverVersion,
       "com.github.pureconfig" %% "pureconfig"          % PureconfigVersion
     ),
+    Compile / mainClass := Some("dev.alvo.todo.Main"),
     addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
     addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
   )

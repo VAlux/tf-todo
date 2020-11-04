@@ -35,7 +35,7 @@ object MongodbTodoStorage {
       }
     }
 
-  implicit class ObservableOps[A](val observable: Observable[A]) extends AnyVal {
+  private implicit class ObservableOps[A](val observable: Observable[A]) extends AnyVal {
     def asDelayed[F[_]: ContextShift](implicit F: Async[F]): F[A] =
       Async.fromFuture(F.delay(observable.head()))
 
