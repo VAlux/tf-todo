@@ -1,6 +1,6 @@
 package dev.alvo.todo.http
 
-import cats.MonoidK.ops.toAllMonoidKOps
+import cats.syntax.semigroupk._
 import cats.effect.ConcurrentEffect
 import dev.alvo.todo.http.controller.Controller
 import org.http4s.HttpApp

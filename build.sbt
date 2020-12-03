@@ -27,9 +27,12 @@ lazy val root = (project in file("."))
       "org.mongodb.scala"           %% "mongo-scala-driver"       % MongoDriverVersion,
       "com.github.pureconfig"       %% "pureconfig"               % PureconfigVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-core"               % TapirVersion,
+      "com.softwaremill.sttp.tapir" %% "tapir-http4s-server"      % TapirVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-json-circe"         % TapirVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs"       % TapirVersion,
-      "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % TapirVersion
+      "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % TapirVersion,
+      "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-http4s"  % TapirVersion,
+      "com.softwaremill.sttp.tapir" %% "tapir-redoc-http4s"       % TapirVersion
     ),
     Compile / mainClass := Some("dev.alvo.todo.Main"),
     addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),

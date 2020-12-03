@@ -1,15 +1,15 @@
 package dev.alvo.todo.http.routes
 
-import dev.alvo.todo.http.model.response.RootErrorInfoResponse
+import dev.alvo.todo.http.model.response.ErrorInfoResponse
 import io.circe.generic.auto._
 import sttp.tapir._
 import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe._
 
-class RootEndpoint {
+object RootEndpoint {
 
-  val rootV1: Endpoint[Unit, RootErrorInfoResponse, Unit, Any] =
+  val rootV1: Endpoint[Unit, ErrorInfoResponse, Unit, Any] =
     endpoint
       .in("api" / "v1.0")
-      .errorOut(jsonBody[RootErrorInfoResponse])
+      .errorOut(jsonBody[ErrorInfoResponse])
 }
