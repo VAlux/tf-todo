@@ -4,6 +4,7 @@ import cats.syntax.functor._
 import io.circe.generic.auto._
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder}
+import sttp.tapir.{Schema, Validator}
 
 sealed trait ErrorInfoResponse
 
@@ -27,4 +28,8 @@ object ErrorInfoResponse {
       Decoder[BadRequestResponse].widen,
       Decoder[NotFoundResponse].widen
     ).reduceLeft(_ or _)
+
+  implicit val errorInfoResponseValidator: Validator[ErrorInfoResponse] = Validator.derive[ErrorInfoResponse]
+
+  implicit val errorInfoResponseSchema: Schema[ErrorInfoResponse] = Schema.derive[ErrorInfoResponse]
 }

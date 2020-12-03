@@ -1,10 +1,9 @@
-package dev.alvo.todo.http.routes
+package dev.alvo.todo.http.endpoints
 
 import dev.alvo.todo.http.model.response.ErrorInfoResponse
-import io.circe.generic.auto._
-import sttp.tapir._
-import sttp.tapir.generic.auto._
-import sttp.tapir.json.circe._
+import dev.alvo.todo.http.model.response.ErrorInfoResponse._
+import sttp.tapir.json.circe.jsonBody
+import sttp.tapir.{Endpoint, endpoint, _}
 
 object RootEndpoint {
 

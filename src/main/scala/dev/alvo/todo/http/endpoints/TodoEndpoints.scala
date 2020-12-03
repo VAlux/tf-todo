@@ -1,11 +1,9 @@
-package dev.alvo.todo.http.routes
+package dev.alvo.todo.http.endpoints
 
 import dev.alvo.todo.http.model.request.CreateTaskRequest
-import dev.alvo.todo.http.model.request.CreateTaskRequest._
-import dev.alvo.todo.http.model.response.RetrieveTaskResponse._
 import dev.alvo.todo.http.model.response.{ErrorInfoResponse, RetrieveTaskResponse}
-import sttp.tapir._
 import sttp.tapir.json.circe.jsonBody
+import sttp.tapir.{path, Endpoint}
 
 object TodoEndpoints {
 

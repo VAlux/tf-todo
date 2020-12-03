@@ -15,6 +15,5 @@ object Entrypoint {
     (first +: remaining)
       .map(_.routes)
       .reduceLeft(_ <+> _)
-      .pipe(routes => Router("api" -> routes))
       .orNotFound
 }

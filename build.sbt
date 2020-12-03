@@ -39,6 +39,14 @@ lazy val root = (project in file("."))
     addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
   )
 
+assemblyMergeStrategy in assembly := {
+  case PathList("META-INF", "maven", "org.webjars", "swagger-ui", "pom.properties") =>
+    MergeStrategy.singleOrError
+  case x =>
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}
+
 scalacOptions ++= Seq(
   "-deprecation",
   "-encoding", "UTF-8",
