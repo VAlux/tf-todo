@@ -1,9 +1,10 @@
 package dev.alvo.todo
 
 import cats.effect.concurrent.Ref
-import cats.effect.{IO, Sync}
+import cats.effect.{Concurrent, ContextShift, IO, Sync, Timer}
 import cats.implicits._
 import dev.alvo.todo.http.routes.TodoRoutes
+import dev.alvo.todo.service.TodoService
 import dev.alvo.todo.storage.InMemoryTodoStorage
 import dev.alvo.todo.storage.model.Task
 import org.http4s._
@@ -11,7 +12,14 @@ import org.http4s.implicits._
 import org.specs2.matcher.MatchResult
 import utils.UUIDGenerator
 
-class TodoStorageSpec extends org.specs2.mutable.Specification {
+import java.util.concurrent.Executors
+import scala.concurrent.ExecutionContext
+
+class TodoServiceSpec extends org.specs2.mutable.Specification {
+
+  implicit private def contextShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
+
+  implicit private def timer: Timer[IO] = IO.timer(ExecutionContext.global)
 
   "Todo" >> {
     "return 200" >> {
@@ -22,16 +30,17 @@ class TodoStorageSpec extends org.specs2.mutable.Specification {
     }
   }
 
-  private[this] def createService[F[_]: Sync](request: Request[F]): F[Response[F]] =
+  private[this] def createService[F[_]: Concurrent: ContextShift: Timer](request: Request[F]): F[Response[F]] =
     for {
-      storage <- Ref.of(Map.empty[String, Task.Existing])
       generator <- UUIDGenerator[F]
-      service <- InMemoryTodoStorage(storage, generator)
+      engine <- Ref.of(Map.empty[String, Task.Existing])
+      storage <- InMemoryTodoStorage(engine, generator)
+      service <- TodoService.create(storage)
       todo <- new TodoRoutes(service).todoServiceRoutes.orNotFound(request)
     } yield todo
 
   private[this] val retAllTodo: Response[IO] =
-    createService[IO](Request(Method.GET, uri"/")).unsafeRunSync()
+    createService[IO](Request(Method.GET, uri"api/v1.0/todo")).unsafeRunSync()
 
   private[this] def uriReturns200(): MatchResult[Status] =
     retAllTodo.status must beEqualTo(Status.Ok)

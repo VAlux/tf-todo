@@ -15,7 +15,7 @@ trait TodoService[F[_]] {
 
   def updateTask(todoId: String, request: CreateTaskRequest): F[RetrieveOrErrorResponse]
 
-  def getTask(todoId: String): F[Either[ErrorInfoResponse, RetrieveTaskResponse]]
+  def getTask(todoId: String): F[RetrieveOrErrorResponse]
 
   def getAllTasks: F[Either[ErrorInfoResponse, List[RetrieveTaskResponse]]]
 
