@@ -1,13 +1,10 @@
 package dev.alvo.todo.http
 
-import cats.syntax.semigroupk._
 import cats.effect.ConcurrentEffect
+import cats.syntax.semigroupk._
 import dev.alvo.todo.http.controller.Controller
 import org.http4s.HttpApp
 import org.http4s.implicits.http4sKleisliResponseSyntaxOptionT
-import org.http4s.server.Router
-
-import scala.util.chaining._
 
 object Entrypoint {
 

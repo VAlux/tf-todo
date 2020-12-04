@@ -1,14 +1,15 @@
 package dev.alvo.todo.http.application
 
 import cats.effect.{ConcurrentEffect, ContextShift, Sync, Timer}
+import cats.syntax.flatMap._
+import cats.syntax.functor._
 import dev.alvo.todo.config.Configuration
 import dev.alvo.todo.database.MongoDb
 import dev.alvo.todo.http.Entrypoint
-import dev.alvo.todo.http.controller.TodoController
+import dev.alvo.todo.http.controller.{SwaggerController, TodoController}
+import dev.alvo.todo.service.TodoService
 import dev.alvo.todo.storage.MongodbTodoStorage
 import utils.UUIDGenerator
-import cats.syntax.all._
-import dev.alvo.todo.service.TodoService
 
 object MongodbStorageHttpApplication {
 
@@ -20,6 +21,7 @@ object MongodbStorageHttpApplication {
         storage <- MongodbTodoStorage[F](engine, generator)
         service <- TodoService.create(storage)
         todoController <- TodoController.create(service)
-      } yield Entrypoint.forControllers(todoController)
+        swaggerController <- SwaggerController.create
+      } yield Entrypoint.forControllers(todoController, swaggerController)
   }
 }

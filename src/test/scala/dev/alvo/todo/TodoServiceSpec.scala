@@ -1,7 +1,7 @@
 package dev.alvo.todo
 
 import cats.effect.concurrent.Ref
-import cats.effect.{Concurrent, ContextShift, IO, Sync, Timer}
+import cats.effect.{Concurrent, ContextShift, IO, Timer}
 import cats.implicits._
 import dev.alvo.todo.http.routes.TodoRoutes
 import dev.alvo.todo.service.TodoService
@@ -12,7 +12,6 @@ import org.http4s.implicits._
 import org.specs2.matcher.MatchResult
 import utils.UUIDGenerator
 
-import java.util.concurrent.Executors
 import scala.concurrent.ExecutionContext
 
 class TodoServiceSpec extends org.specs2.mutable.Specification {
@@ -36,7 +35,7 @@ class TodoServiceSpec extends org.specs2.mutable.Specification {
       engine <- Ref.of(Map.empty[String, Task.Existing])
       storage <- InMemoryTodoStorage(engine, generator)
       service <- TodoService.create(storage)
-      todo <- new TodoRoutes(service).todoServiceRoutes.orNotFound(request)
+      todo <- TodoRoutes.create(service).flatMap(_.routes.orNotFound(request))
     } yield todo
 
   private[this] val retAllTodo: Response[IO] =

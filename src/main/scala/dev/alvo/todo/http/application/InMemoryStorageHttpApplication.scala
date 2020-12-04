@@ -5,7 +5,7 @@ import cats.effect.{ConcurrentEffect, ContextShift, Sync, Timer}
 import cats.syntax.all._
 import dev.alvo.todo.config.Configuration
 import dev.alvo.todo.http.Entrypoint
-import dev.alvo.todo.http.controller.TodoController
+import dev.alvo.todo.http.controller.{SwaggerController, TodoController}
 import dev.alvo.todo.service.TodoService
 import dev.alvo.todo.storage.InMemoryTodoStorage
 import dev.alvo.todo.storage.model.Task
@@ -21,6 +21,7 @@ object InMemoryStorageHttpApplication {
         storage <- InMemoryTodoStorage[F](engine, generator)
         service <- TodoService.create(storage)
         todoController <- TodoController.create(service)
-      } yield Entrypoint.forControllers(todoController)
+        swaggerController <- SwaggerController.create
+      } yield Entrypoint.forControllers(todoController, swaggerController)
   }
 }
