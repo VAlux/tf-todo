@@ -7,6 +7,7 @@ import dev.alvo.todo.config.Configuration
 import dev.alvo.todo.database.MongoDb
 import dev.alvo.todo.http.Entrypoint
 import dev.alvo.todo.http.controller.{SwaggerController, TodoController}
+import dev.alvo.todo.http.endpoints.{OpenApiEndpoints, TodoEndpoints}
 import dev.alvo.todo.service.TodoService
 import dev.alvo.todo.storage.MongodbTodoStorage
 import utils.UUIDGenerator
@@ -20,8 +21,10 @@ object MongodbStorageHttpApplication {
         engine <- MongoDb.dsl(config)
         storage <- MongodbTodoStorage[F](engine, generator)
         service <- TodoService.create(storage)
-        todoController <- TodoController.create(service)
-        swaggerController <- SwaggerController.create
+        todoEndpoints = new TodoEndpoints(service)
+        openApiEndpoints = new OpenApiEndpoints(todoEndpoints)
+        todoController <- TodoController.create(todoEndpoints)
+        swaggerController <- SwaggerController.create(openApiEndpoints)
       } yield Entrypoint.forControllers(todoController, swaggerController)
   }
 }

@@ -1,50 +1,65 @@
 package dev.alvo.todo.http.endpoints
 
+import dev.alvo.todo.http.model.User
 import dev.alvo.todo.http.model.request.CreateTaskRequest
-import dev.alvo.todo.http.model.response.{ErrorInfoResponse, RetrieveTaskResponse}
+import dev.alvo.todo.http.model.response.{ErrorResponse, RetrieveTaskResponse}
+import dev.alvo.todo.service.TodoService
+import sttp.tapir._
 import sttp.tapir.json.circe.jsonBody
-import sttp.tapir.{path, Endpoint}
+import sttp.tapir.server.PartialServerEndpoint
 
-object TodoEndpoints {
+import scala.language.existentials
 
-  private val todoRoot: Endpoint[Unit, ErrorInfoResponse, Unit, Any] =
-    RootEndpoint.rootV1.in("todo")
+class TodoEndpoints[F[_]](todoService: TodoService[F]) {
 
-  val createTaskEndpoint: Endpoint[CreateTaskRequest, ErrorInfoResponse, RetrieveTaskResponse, Any] =
+  private val todoRoot: PartialServerEndpoint[User, Unit, ErrorResponse, Unit, Any, F] =
+    RootEndpoint.secureRootV1[F].in("todo")
+
+  val createTask =
     todoRoot.post
       .description("Create new task")
       .in(jsonBody[CreateTaskRequest])
       .out(jsonBody[RetrieveTaskResponse])
+      .serverLogic {
+        case (_: User, request: CreateTaskRequest) => todoService.createTask(request)
+      }
 
-  val updateTaskEndpoint: Endpoint[(String, CreateTaskRequest), ErrorInfoResponse, RetrieveTaskResponse, Any] =
+  val updateTask =
     todoRoot
       .in(path[String]("todoId").description("Id of the task"))
       .put
       .description("Update existing task")
       .in(jsonBody[CreateTaskRequest])
       .out(jsonBody[RetrieveTaskResponse])
+      .serverLogic {
+        case (_: User, (id: String, request: CreateTaskRequest)) => todoService.updateTask(id, request)
+      }
 
-  val getAllTasksEndpoint: Endpoint[Unit, ErrorInfoResponse, List[RetrieveTaskResponse], Any] =
+  val getAllTasks =
     todoRoot.get
       .description("Retrieve all of the available tasks")
       .out(jsonBody[List[RetrieveTaskResponse]])
+      .serverLogic(_ => todoService.getAllTasks)
 
-  val getTaskByIdEndpoint: Endpoint[String, ErrorInfoResponse, RetrieveTaskResponse, Any] =
+  val getTaskById =
     todoRoot
       .in(path[String]("todoId").description("Id of the task"))
       .get
       .description("Get specific task by id")
       .out(jsonBody[RetrieveTaskResponse])
+      .serverLogic { case (_: User, id: String) => todoService.getTask(id) }
 
-  val deleteTaskByIdEndpoint: Endpoint[String, ErrorInfoResponse, String, Any] =
+  val deleteTaskById =
     todoRoot
       .in(path[String]("todoId").description("Id of the task"))
       .delete
       .description("Delete specific task by id")
       .out(jsonBody[String])
+      .serverLogic { case (_: User, id: String) => todoService.removeTask(id) }
 
-  val deleteAllTasksEndpoint: Endpoint[Unit, ErrorInfoResponse, String, Any] =
+  val deleteAllTasks =
     todoRoot.delete
       .description("Delete all available tasks")
       .out(jsonBody[String])
+      .serverLogic(_ => todoService.removeAllTasks())
 }

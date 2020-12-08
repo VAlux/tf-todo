@@ -3,6 +3,7 @@ package dev.alvo.todo
 import cats.effect.concurrent.Ref
 import cats.effect.{Concurrent, ContextShift, IO, Timer}
 import cats.implicits._
+import dev.alvo.todo.http.endpoints.TodoEndpoints
 import dev.alvo.todo.http.routes.TodoRoutes
 import dev.alvo.todo.service.TodoService
 import dev.alvo.todo.storage.InMemoryTodoStorage
@@ -35,7 +36,8 @@ class TodoServiceSpec extends org.specs2.mutable.Specification {
       engine <- Ref.of(Map.empty[String, Task.Existing])
       storage <- InMemoryTodoStorage(engine, generator)
       service <- TodoService.create(storage)
-      todo <- TodoRoutes.create(service).flatMap(_.routes.orNotFound(request))
+      endpoints = new TodoEndpoints[F](service)
+      todo <- TodoRoutes.create(endpoints).flatMap(_.routes.orNotFound(request))
     } yield todo
 
   private[this] val retAllTodo: Response[IO] =

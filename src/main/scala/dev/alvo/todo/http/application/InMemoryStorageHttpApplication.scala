@@ -6,6 +6,7 @@ import cats.syntax.all._
 import dev.alvo.todo.config.Configuration
 import dev.alvo.todo.http.Entrypoint
 import dev.alvo.todo.http.controller.{SwaggerController, TodoController}
+import dev.alvo.todo.http.endpoints.{OpenApiEndpoints, TodoEndpoints}
 import dev.alvo.todo.service.TodoService
 import dev.alvo.todo.storage.InMemoryTodoStorage
 import dev.alvo.todo.storage.model.Task
@@ -20,8 +21,10 @@ object InMemoryStorageHttpApplication {
         engine <- Ref.of(Map.empty[String, Task.Existing])
         storage <- InMemoryTodoStorage[F](engine, generator)
         service <- TodoService.create(storage)
-        todoController <- TodoController.create(service)
-        swaggerController <- SwaggerController.create
+        todoEndpoints = new TodoEndpoints[F](service)
+        openApiEndpoints = new OpenApiEndpoints(todoEndpoints)
+        todoController <- TodoController.create(todoEndpoints)
+        swaggerController <- SwaggerController.create(openApiEndpoints)
       } yield Entrypoint.forControllers(todoController, swaggerController)
   }
 }

@@ -1,17 +1,17 @@
 package dev.alvo.todo.http.endpoints
 
-import dev.alvo.todo.http.endpoints.TodoEndpoints._
-import sttp.tapir.docs.openapi._
+import sttp.tapir.docs.openapi.RichOpenAPIServerEndpoints
 import sttp.tapir.openapi.OpenAPI
 
-object OpenApiEndpoints {
+class OpenApiEndpoints[F[_]](todoEndpoints: TodoEndpoints[F]) {
 
-  val openApiEndpoints: OpenAPI = Seq(
-    createTaskEndpoint,
-    updateTaskEndpoint,
-    getTaskByIdEndpoint,
-    getAllTasksEndpoint,
-    deleteTaskByIdEndpoint,
-    deleteAllTasksEndpoint
-  ).toOpenAPI("ToDo API", "1.0")
+  val endpoints: OpenAPI =
+    Seq(
+      todoEndpoints.createTask,
+      todoEndpoints.updateTask,
+      todoEndpoints.getTaskById,
+      todoEndpoints.getAllTasks,
+      todoEndpoints.deleteTaskById,
+      todoEndpoints.deleteAllTasks
+    ).toOpenAPI("ToDo API", "1.0")
 }

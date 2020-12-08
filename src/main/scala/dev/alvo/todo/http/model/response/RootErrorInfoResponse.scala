@@ -6,30 +6,33 @@ import io.circe.syntax._
 import io.circe.{Decoder, Encoder}
 import sttp.tapir.{Schema, Validator}
 
-sealed trait ErrorInfoResponse
+sealed trait ErrorResponse
 
-sealed trait ServerErrorResponse extends ErrorInfoResponse
-case class ServerErrorInfoResponse(message: String = "Internal Server Error") extends ServerErrorResponse
+sealed trait ServerErrorResponse extends ErrorResponse
+case class InternalErrorResponse(message: String = "Internal Server Error") extends ServerErrorResponse
 
-sealed trait UserErrorResponse extends ErrorInfoResponse
+sealed trait UserErrorResponse extends ErrorResponse
 case class BadRequestResponse(what: String = "Bad Request") extends UserErrorResponse
 case class NotFoundResponse(what: String = "Resource not found") extends UserErrorResponse
+case class UnauthorizedResponse(message: String = s"No permissions to access the resource") extends UserErrorResponse
 
-object ErrorInfoResponse {
-  implicit val errorInfoResponseEncoder: Encoder[ErrorInfoResponse] = Encoder.instance {
-    case server @ ServerErrorInfoResponse(_) => server.asJson
+object ErrorResponse {
+  implicit val errorInfoResponseEncoder: Encoder[ErrorResponse] = Encoder.instance {
+    case server @ InternalErrorResponse(_) => server.asJson
     case badRequest @ BadRequestResponse(_) => badRequest.asJson
     case notFound @ NotFoundResponse(_) => notFound.asJson
+    case unauthorized @ UnauthorizedResponse(_) => unauthorized.asJson
   }
 
-  implicit val errorInfoResponseDecoder: Decoder[ErrorInfoResponse] =
-    List[Decoder[ErrorInfoResponse]](
-      Decoder[ServerErrorInfoResponse].widen,
+  implicit val errorInfoResponseDecoder: Decoder[ErrorResponse] =
+    List[Decoder[ErrorResponse]](
+      Decoder[ServerErrorResponse].widen,
       Decoder[BadRequestResponse].widen,
-      Decoder[NotFoundResponse].widen
+      Decoder[NotFoundResponse].widen,
+      Decoder[UnauthorizedResponse].widen
     ).reduceLeft(_ or _)
 
-  implicit val errorInfoResponseValidator: Validator[ErrorInfoResponse] = Validator.derive[ErrorInfoResponse]
+  implicit val errorInfoResponseValidator: Validator[ErrorResponse] = Validator.derive[ErrorResponse]
 
-  implicit val errorInfoResponseSchema: Schema[ErrorInfoResponse] = Schema.derive[ErrorInfoResponse]
+  implicit val errorInfoResponseSchema: Schema[ErrorResponse] = Schema.derive[ErrorResponse]
 }

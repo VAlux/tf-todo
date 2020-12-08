@@ -1,24 +1,23 @@
 package dev.alvo.todo.http.routes
 
 import cats.effect.{Concurrent, ContextShift, Sync, Timer}
-import cats.syntax.semigroupk._
-import dev.alvo.todo.http.endpoints.TodoEndpoints._
-import dev.alvo.todo.service.TodoService
+import cats.implicits.toSemigroupKOps
+import dev.alvo.todo.http.endpoints.TodoEndpoints
 import org.http4s.HttpRoutes
-import sttp.tapir.server.http4s._
+import sttp.tapir.server.http4s.RichHttp4sServerEndpoint
 
 object TodoRoutes {
 
-  def create[F[_]: Concurrent: ContextShift: Timer](todoService: TodoService[F])(implicit F: Sync[F]): F[Routes[F]] =
+  def create[F[_]: Concurrent: ContextShift: Timer](todo: TodoEndpoints[F])(implicit F: Sync[F]): F[Routes[F]] =
     F.delay {
       new Routes[F] {
         override val routes: HttpRoutes[F] =
-          createTaskEndpoint.toRoutes(todoService.createTask) <+>
-            getTaskByIdEndpoint.toRoutes(todoService.getTask) <+>
-            getAllTasksEndpoint.toRoutes(_ => todoService.getAllTasks) <+>
-            updateTaskEndpoint.toRoutes((todoService.updateTask _).tupled) <+>
-            deleteTaskByIdEndpoint.toRoutes(todoService.removeTask) <+>
-            deleteAllTasksEndpoint.toRoutes(_ => todoService.removeAllTasks())
+          todo.createTask.toRoutes <+>
+            todo.getTaskById.toRoutes <+>
+            todo.getAllTasks.toRoutes <+>
+            todo.updateTask.toRoutes <+>
+            todo.deleteTaskById.toRoutes <+>
+            todo.deleteAllTasks.toRoutes
       }
     }
 }
