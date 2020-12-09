@@ -1,4 +1,4 @@
-package dev.alvo.todo.http.model.response
+package dev.alvo.todo.model.response
 
 import cats.syntax.functor._
 import io.circe.generic.auto._

@@ -1,4 +1,4 @@
-package dev.alvo.todo.http.model.request
+package dev.alvo.todo.model.request
 
 import io.circe.Codec
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}

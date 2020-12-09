@@ -1,4 +1,4 @@
-package dev.alvo.todo.http.application
+package dev.alvo.todo.application
 
 import dev.alvo.todo.config.Configuration
 import org.http4s.HttpApp

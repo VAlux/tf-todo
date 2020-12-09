@@ -1,4 +1,4 @@
-package dev.alvo.todo.http.endpoints
+package dev.alvo.todo.endpoints
 
 import sttp.tapir.docs.openapi.RichOpenAPIServerEndpoints
 import sttp.tapir.openapi.OpenAPI

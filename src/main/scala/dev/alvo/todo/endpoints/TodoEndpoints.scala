@@ -1,19 +1,19 @@
-package dev.alvo.todo.http.endpoints
+package dev.alvo.todo.endpoints
 
-import dev.alvo.todo.http.model.User
-import dev.alvo.todo.http.model.request.CreateTaskRequest
-import dev.alvo.todo.http.model.response.{ErrorResponse, RetrieveTaskResponse}
-import dev.alvo.todo.service.TodoService
+import dev.alvo.todo.model.User
+import dev.alvo.todo.model.request.CreateTaskRequest
+import dev.alvo.todo.model.response.{ErrorResponse, RetrieveTaskResponse}
+import dev.alvo.todo.service.{AuthenticationService, TodoService}
 import sttp.tapir._
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.PartialServerEndpoint
 
 import scala.language.existentials
 
-class TodoEndpoints[F[_]](todoService: TodoService[F]) {
+class TodoEndpoints[F[_]](todoService: TodoService[F], authenticationService: AuthenticationService[F]) {
 
   private val todoRoot: PartialServerEndpoint[User, Unit, ErrorResponse, Unit, Any, F] =
-    RootEndpoint.secureRootV1[F].in("todo")
+    RootEndpoint.secureRootV1[F](authenticationService).in("todo")
 
   val createTask =
     todoRoot.post

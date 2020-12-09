@@ -1,9 +1,9 @@
-package dev.alvo.todo.http
+package dev.alvo.todo
 
 import cats.effect.ConcurrentEffect
-import cats.syntax.semigroupk._
-import dev.alvo.todo.http.controller.Controller
+import dev.alvo.todo.controller.Controller
 import org.http4s.HttpApp
+import cats.syntax.semigroupk._
 import org.http4s.implicits.http4sKleisliResponseSyntaxOptionT
 
 object Entrypoint {

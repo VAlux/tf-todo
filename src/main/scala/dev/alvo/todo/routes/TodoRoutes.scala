@@ -1,13 +1,12 @@
-package dev.alvo.todo.http.routes
+package dev.alvo.todo.routes
 
 import cats.effect.{Concurrent, ContextShift, Sync, Timer}
 import cats.implicits.toSemigroupKOps
-import dev.alvo.todo.http.endpoints.TodoEndpoints
+import dev.alvo.todo.endpoints.TodoEndpoints
 import org.http4s.HttpRoutes
 import sttp.tapir.server.http4s.RichHttp4sServerEndpoint
 
 object TodoRoutes {
-
   def create[F[_]: Concurrent: ContextShift: Timer](todo: TodoEndpoints[F])(implicit F: Sync[F]): F[Routes[F]] =
     F.delay {
       new Routes[F] {

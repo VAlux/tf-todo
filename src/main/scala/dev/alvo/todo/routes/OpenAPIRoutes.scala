@@ -1,4 +1,4 @@
-package dev.alvo.todo.http.routes
+package dev.alvo.todo.routes
 
 import cats.effect.{Concurrent, ContextShift, Sync}
 import org.http4s.HttpRoutes

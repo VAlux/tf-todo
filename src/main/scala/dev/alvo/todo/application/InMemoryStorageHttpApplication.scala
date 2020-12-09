@@ -1,13 +1,13 @@
-package dev.alvo.todo.http.application
+package dev.alvo.todo.application
 
 import cats.effect.concurrent.Ref
 import cats.effect.{ConcurrentEffect, ContextShift, Sync, Timer}
 import cats.syntax.all._
+import dev.alvo.todo.Entrypoint
 import dev.alvo.todo.config.Configuration
-import dev.alvo.todo.http.Entrypoint
-import dev.alvo.todo.http.controller.{SwaggerController, TodoController}
-import dev.alvo.todo.http.endpoints.{OpenApiEndpoints, TodoEndpoints}
-import dev.alvo.todo.service.TodoService
+import dev.alvo.todo.controller.{SwaggerController, TodoController}
+import dev.alvo.todo.endpoints.{OpenApiEndpoints, TodoEndpoints}
+import dev.alvo.todo.service.{AuthenticationService, TodoService}
 import dev.alvo.todo.storage.InMemoryTodoStorage
 import dev.alvo.todo.storage.model.Task
 import utils.UUIDGenerator
@@ -20,8 +20,9 @@ object InMemoryStorageHttpApplication {
         generator <- UUIDGenerator[F]
         engine <- Ref.of(Map.empty[String, Task.Existing])
         storage <- InMemoryTodoStorage[F](engine, generator)
-        service <- TodoService.create(storage)
-        todoEndpoints = new TodoEndpoints[F](service)
+        todoService <- TodoService.create(storage)
+        authenticationService <- AuthenticationService.create[F]
+        todoEndpoints = new TodoEndpoints[F](todoService, authenticationService)
         openApiEndpoints = new OpenApiEndpoints(todoEndpoints)
         todoController <- TodoController.create(todoEndpoints)
         swaggerController <- SwaggerController.create(openApiEndpoints)

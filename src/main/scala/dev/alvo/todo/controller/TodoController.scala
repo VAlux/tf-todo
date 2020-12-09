@@ -1,9 +1,9 @@
-package dev.alvo.todo.http.controller
+package dev.alvo.todo.controller
 
 import cats.effect.{Concurrent, ContextShift, Timer}
 import cats.syntax.functor._
-import dev.alvo.todo.http.endpoints.TodoEndpoints
-import dev.alvo.todo.http.routes.TodoRoutes
+import dev.alvo.todo.endpoints.TodoEndpoints
+import dev.alvo.todo.routes.TodoRoutes
 
 object TodoController {
   def create[F[_]: Concurrent: ContextShift: Timer](endpoints: TodoEndpoints[F]): F[Controller[F]] =

@@ -1,4 +1,4 @@
-package dev.alvo.todo.http.routes
+package dev.alvo.todo.routes
 
 import org.http4s.HttpRoutes
 

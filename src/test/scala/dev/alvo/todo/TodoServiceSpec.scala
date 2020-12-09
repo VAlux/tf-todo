@@ -3,8 +3,8 @@ package dev.alvo.todo
 import cats.effect.concurrent.Ref
 import cats.effect.{Concurrent, ContextShift, IO, Timer}
 import cats.implicits._
-import dev.alvo.todo.http.endpoints.TodoEndpoints
-import dev.alvo.todo.http.routes.TodoRoutes
+import dev.alvo.todo.endpoints.TodoEndpoints
+import dev.alvo.todo.routes.TodoRoutes
 import dev.alvo.todo.service.TodoService
 import dev.alvo.todo.storage.InMemoryTodoStorage
 import dev.alvo.todo.storage.model.Task

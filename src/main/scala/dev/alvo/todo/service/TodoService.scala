@@ -2,8 +2,8 @@ package dev.alvo.todo.service
 
 import cats.effect.Sync
 import cats.syntax.functor._
-import dev.alvo.todo.http.model.request.CreateTaskRequest
-import dev.alvo.todo.http.model.response.{ErrorResponse, NotFoundResponse, RetrieveTaskResponse, UserErrorResponse}
+import dev.alvo.todo.model.request.CreateTaskRequest
+import dev.alvo.todo.model.response.{ErrorResponse, NotFoundResponse, RetrieveTaskResponse, UserErrorResponse}
 import dev.alvo.todo.storage.TodoStorage
 import dev.alvo.todo.storage.model.Task
 

@@ -2,7 +2,7 @@ package dev.alvo.todo
 
 import cats.effect.{ConcurrentEffect, ContextShift, ExitCode, IO, IOApp, Timer}
 import dev.alvo.todo.config.{Configuration, ConfigurationReader}
-import dev.alvo.todo.http.application.{InMemoryStorageHttpApplication, MongodbStorageHttpApplication}
+import dev.alvo.todo.application.{InMemoryStorageHttpApplication, MongodbStorageHttpApplication}
 import fs2.Stream
 import org.http4s.HttpApp
 import org.http4s.server.blaze.BlazeServerBuilder
