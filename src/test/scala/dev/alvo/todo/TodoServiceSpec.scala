@@ -1,11 +1,13 @@
 package dev.alvo.todo
 
 import cats.effect.concurrent.Ref
-import cats.effect.{Concurrent, ContextShift, IO, Timer}
+import cats.effect.{Concurrent, ContextShift, IO, Sync, Timer}
 import cats.implicits._
 import dev.alvo.todo.endpoints.TodoEndpoints
+import dev.alvo.todo.model.User
+import dev.alvo.todo.model.response.{ErrorResponse, UnauthorizedResponse}
 import dev.alvo.todo.routes.TodoRoutes
-import dev.alvo.todo.service.TodoService
+import dev.alvo.todo.service.{AuthenticationService, TodoService}
 import dev.alvo.todo.storage.InMemoryTodoStorage
 import dev.alvo.todo.storage.model.Task
 import org.http4s._
@@ -30,18 +32,27 @@ class TodoServiceSpec extends org.specs2.mutable.Specification {
     }
   }
 
+  private def mockAuthenticationService[F[_]](implicit F: Sync[F]): AuthenticationService[F] =
+    (token: String) =>
+      F.delay {
+        if (token == "secret") Right(User("email@email.com", "admin"))
+        else Left(UnauthorizedResponse())
+    }
+
   private[this] def createService[F[_]: Concurrent: ContextShift: Timer](request: Request[F]): F[Response[F]] =
     for {
       generator <- UUIDGenerator[F]
       engine <- Ref.of(Map.empty[String, Task.Existing])
       storage <- InMemoryTodoStorage(engine, generator)
       service <- TodoService.create(storage)
-      endpoints = new TodoEndpoints[F](service)
+      endpoints = new TodoEndpoints[F](service, mockAuthenticationService)
       todo <- TodoRoutes.create(endpoints).flatMap(_.routes.orNotFound(request))
     } yield todo
 
   private[this] val retAllTodo: Response[IO] =
-    createService[IO](Request(Method.GET, uri"api/v1.0/todo")).unsafeRunSync()
+    createService[IO](
+      Request(Method.GET, uri"api/v1/todo", headers = Headers.of(Header("Authorization", "Bearer secret")))
+    ).unsafeRunSync()
 
   private[this] def uriReturns200(): MatchResult[Status] =
     retAllTodo.status must beEqualTo(Status.Ok)
