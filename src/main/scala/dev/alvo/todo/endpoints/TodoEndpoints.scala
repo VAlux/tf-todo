@@ -1,14 +1,14 @@
 package dev.alvo.todo.endpoints
 
 import cats.effect.Sync
+import cats.implicits._
 import dev.alvo.todo.model.User
 import dev.alvo.todo.model.request.CreateTaskRequest
-import dev.alvo.todo.model.response.{ErrorResponse, RetrieveTaskResponse}
+import dev.alvo.todo.model.response.{ErrorResponse, NotFoundResponse, RetrieveTaskResponse}
 import dev.alvo.todo.service.{AuthenticationService, TodoService}
 import sttp.tapir._
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.PartialServerEndpoint
-import cats.syntax.all._
 
 import scala.language.existentials
 
@@ -23,7 +23,38 @@ class TodoEndpoints[F[_]: Sync](todoService: TodoService[F], authenticationServi
       .in(jsonBody[CreateTaskRequest])
       .out(jsonBody[RetrieveTaskResponse])
       .serverLogic {
-        case (_: User, request: CreateTaskRequest) => todoService.createTask(request)
+        case (_: User, request: CreateTaskRequest) =>
+          todoService.createTask(request).map { result =>
+            result.fold[Either[ErrorResponse, RetrieveTaskResponse]](Left(NotFoundResponse()))(
+              task => Right(RetrieveTaskResponse(task.id, task.action))
+            )
+          }
+      }
+
+  val getTaskById =
+    todoRoot
+      .in(path[String]("todoId").description("Id of the task"))
+      .get
+      .description("Get specific task by id")
+      .out(jsonBody[RetrieveTaskResponse])
+      .serverLogic {
+        case (_: User, id: String) =>
+          todoService.getTask(id).map {
+            _.fold[Either[ErrorResponse, RetrieveTaskResponse]](Left(NotFoundResponse()))(
+              task => Right(RetrieveTaskResponse(task.id, task.action))
+            )
+          }
+      }
+
+  val getAllTasks =
+    todoRoot.get
+      .description("Retrieve all of the available tasks")
+      .out(jsonBody[List[RetrieveTaskResponse]])
+      .serverLogic { _ =>
+        for {
+          tasks <- todoService.getAllTasks
+          response = tasks.map(task => RetrieveTaskResponse(task.id, task.action))
+        } yield Right[ErrorResponse, List[RetrieveTaskResponse]](response)
       }
 
   val updateTask =
@@ -34,22 +65,13 @@ class TodoEndpoints[F[_]: Sync](todoService: TodoService[F], authenticationServi
       .in(jsonBody[CreateTaskRequest])
       .out(jsonBody[RetrieveTaskResponse])
       .serverLogic {
-        case (_: User, (id: String, request: CreateTaskRequest)) => todoService.updateTask(id, request)
+        case (_: User, (id: String, request: CreateTaskRequest)) =>
+          todoService.updateTask(id, request).map {
+            _.fold[Either[ErrorResponse, RetrieveTaskResponse]](Left(NotFoundResponse()))(
+              task => Right(RetrieveTaskResponse(task.id, task.action))
+            )
+          }
       }
-
-  val getAllTasks =
-    todoRoot.get
-      .description("Retrieve all of the available tasks")
-      .out(jsonBody[List[RetrieveTaskResponse]])
-      .serverLogic(_ => todoService.getAllTasks)
-
-  val getTaskById =
-    todoRoot
-      .in(path[String]("todoId").description("Id of the task"))
-      .get
-      .description("Get specific task by id")
-      .out(jsonBody[RetrieveTaskResponse])
-      .serverLogic { case (_: User, id: String) => todoService.getTask(id) }
 
   val deleteTaskById =
     todoRoot
@@ -57,11 +79,13 @@ class TodoEndpoints[F[_]: Sync](todoService: TodoService[F], authenticationServi
       .delete
       .description("Delete specific task by id")
       .out(jsonBody[String])
-      .serverLogic { case (_: User, id: String) => todoService.removeTask(id) }
+      .serverLogic {
+        case (_: User, id: String) => todoService.removeTask(id).map(Right[ErrorResponse, String])
+      }
 
   val deleteAllTasks =
     todoRoot.delete
       .description("Delete all available tasks")
       .out(jsonBody[String])
-      .serverLogic(_ => todoService.removeAllTasks())
+      .serverLogic(_ => todoService.removeAllTasks().map(Right[ErrorResponse, String]))
 }
