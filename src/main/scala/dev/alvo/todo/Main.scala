@@ -1,8 +1,9 @@
 package dev.alvo.todo
 
 import cats.effect.{ConcurrentEffect, ContextShift, ExitCode, IO, IOApp, Timer}
-import dev.alvo.todo.config.{Configuration, ConfigurationReader}
+import cats.syntax.flatMap._
 import dev.alvo.todo.application.{InMemoryStorageHttpApplication, MongodbStorageHttpApplication}
+import dev.alvo.todo.config.{ApplicationConfig, Configuration, ConfigurationReader}
 import fs2.Stream
 import org.http4s.HttpApp
 import org.http4s.server.blaze.BlazeServerBuilder
@@ -35,8 +36,14 @@ object Main extends IOApp {
         .dsl[IO]
         .flatMap(_.loadConfiguration)
         .map(_.fold(processConfigurationLoadingError, identity))
-      app <- InMemoryStorageHttpApplication[IO].flatMap(_.createEntrypoint(config))
-//      app <- MongodbStorageHttpApplication[IO].flatMap(_.createEntrypoint(config))
+      app <- createApplication[IO](config)
       server <- stream[IO](config, app).compile.drain.as(ExitCode.Success)
     } yield server
+
+  def createApplication[F[_]: ConcurrentEffect: ContextShift: Timer](config: Configuration): F[HttpApp[F]] =
+    config.application match {
+      case ApplicationConfig("in-memory") => InMemoryStorageHttpApplication[F].flatMap(_.createEntrypoint(config))
+      case ApplicationConfig("mongo") => MongodbStorageHttpApplication[F].flatMap(_.createEntrypoint(config))
+      case _ => InMemoryStorageHttpApplication[F].flatMap(_.createEntrypoint(config))
+    }
 }
