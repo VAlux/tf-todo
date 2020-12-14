@@ -6,6 +6,7 @@ import dev.alvo.todo.model.User
 import dev.alvo.todo.model.request.CreateTaskRequest
 import dev.alvo.todo.model.response.{ErrorResponse, NotFoundResponse, RetrieveTaskResponse}
 import dev.alvo.todo.service.{AuthenticationService, TodoService}
+import dev.alvo.todo.storage.model.Task
 import sttp.tapir._
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.PartialServerEndpoint
@@ -24,11 +25,7 @@ class TodoEndpoints[F[_]: Sync](todoService: TodoService[F], authenticationServi
       .out(jsonBody[RetrieveTaskResponse])
       .serverLogic {
         case (_: User, request: CreateTaskRequest) =>
-          todoService.createTask(request).map { result =>
-            result.fold[Either[ErrorResponse, RetrieveTaskResponse]](Left(NotFoundResponse()))(
-              task => Right(RetrieveTaskResponse(task.id, task.action))
-            )
-          }
+          todoService.createTask(request).map(taskOptionToResponse)
       }
 
   val getTaskById =
@@ -39,11 +36,7 @@ class TodoEndpoints[F[_]: Sync](todoService: TodoService[F], authenticationServi
       .out(jsonBody[RetrieveTaskResponse])
       .serverLogic {
         case (_: User, id: String) =>
-          todoService.getTask(id).map {
-            _.fold[Either[ErrorResponse, RetrieveTaskResponse]](Left(NotFoundResponse()))(
-              task => Right(RetrieveTaskResponse(task.id, task.action))
-            )
-          }
+          todoService.getTask(id).map(taskOptionToResponse)
       }
 
   val getAllTasks =
@@ -66,11 +59,7 @@ class TodoEndpoints[F[_]: Sync](todoService: TodoService[F], authenticationServi
       .out(jsonBody[RetrieveTaskResponse])
       .serverLogic {
         case (_: User, (id: String, request: CreateTaskRequest)) =>
-          todoService.updateTask(id, request).map {
-            _.fold[Either[ErrorResponse, RetrieveTaskResponse]](Left(NotFoundResponse()))(
-              task => Right(RetrieveTaskResponse(task.id, task.action))
-            )
-          }
+          todoService.updateTask(id, request).map(taskOptionToResponse)
       }
 
   val deleteTaskById =
@@ -88,4 +77,9 @@ class TodoEndpoints[F[_]: Sync](todoService: TodoService[F], authenticationServi
       .description("Delete all available tasks")
       .out(jsonBody[String])
       .serverLogic(_ => todoService.removeAllTasks().map(Right[ErrorResponse, String]))
+
+  private def taskOptionToResponse(task: Option[Task.Existing]): Either[ErrorResponse, RetrieveTaskResponse] =
+    task.fold[Either[ErrorResponse, RetrieveTaskResponse]](Left(NotFoundResponse()))(
+      task => Right(RetrieveTaskResponse(task.id, task.action))
+    )
 }
