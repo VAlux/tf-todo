@@ -2,7 +2,7 @@ package dev.alvo.todo
 
 import cats.effect.{ConcurrentEffect, ContextShift, ExitCode, IO, IOApp, Timer}
 import cats.syntax.flatMap._
-import dev.alvo.todo.application.{InMemoryStorageHttpApplication, MongodbStorageHttpApplication}
+import dev.alvo.todo.application.{HttpApplication, InMemoryStorageHttpApplication, MongodbStorageHttpApplication}
 import dev.alvo.todo.config.{ApplicationConfig, Configuration, ConfigurationReader}
 import fs2.Stream
 import org.http4s.HttpApp
@@ -42,8 +42,13 @@ object Main extends IOApp {
 
   def createApplication[F[_]: ConcurrentEffect: ContextShift: Timer](config: Configuration): F[HttpApp[F]] =
     config.application match {
-      case ApplicationConfig("in-memory") => InMemoryStorageHttpApplication[F].flatMap(_.createEntrypoint(config))
-      case ApplicationConfig("mongo") => MongodbStorageHttpApplication[F].flatMap(_.createEntrypoint(config))
+      case ApplicationConfig("in-memory") => createEntrypoint(config, InMemoryStorageHttpApplication[F])
+      case ApplicationConfig("mongo") => createEntrypoint(config, MongodbStorageHttpApplication[F])
       case _ => InMemoryStorageHttpApplication[F].flatMap(_.createEntrypoint(config))
     }
+
+  private def createEntrypoint[F[_]: ConcurrentEffect: ContextShift: Timer](
+    config: Configuration,
+    applicationEffect: F[HttpApplication[F]]
+  ): F[HttpApp[F]] = applicationEffect.flatMap(_.createEntrypoint(config))
 }
