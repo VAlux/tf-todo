@@ -33,7 +33,7 @@ lazy val root = (project in file("."))
       "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % TapirVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-http4s"  % TapirVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-redoc-http4s"       % TapirVersion
-    ),
+),
     Compile / mainClass := Some("dev.alvo.todo.Main"),
     addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
     addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")

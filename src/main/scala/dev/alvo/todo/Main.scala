@@ -8,18 +8,11 @@ import fs2.Stream
 import org.http4s.HttpApp
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.server.middleware.Logger
-import pureconfig.error.ConfigReaderFailures
+import pureconfig.ConfigSource
 
 import scala.concurrent.ExecutionContext.global
 
 object Main extends IOApp {
-
-  private def processConfigurationLoadingError(error: ConfigReaderFailures): Configuration = {
-    Console.err.println("Error reading configuration:")
-    Console.err.println(error.prettyPrint())
-    Console.err.println("Falling back to the default one...")
-    Configuration.default
-  }
 
   def stream[F[_]: ConcurrentEffect: Timer: ContextShift](conf: Configuration, app: HttpApp[F]): Stream[F, ExitCode] =
     for {
@@ -32,10 +25,7 @@ object Main extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] =
     for {
-      config <- ConfigurationReader
-        .dsl[IO]
-        .flatMap(_.loadConfiguration)
-        .map(_.fold(processConfigurationLoadingError, identity))
+      config <- ConfigurationReader.create[IO].flatMap(_.loadConfiguration(ConfigSource.default))
       app <- createApplication[IO](config)
       server <- stream[IO](config, app).compile.drain.as(ExitCode.Success)
     } yield server
