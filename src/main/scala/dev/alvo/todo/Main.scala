@@ -14,14 +14,7 @@ import scala.concurrent.ExecutionContext.global
 
 object Main extends IOApp {
 
-  def stream[F[_]: ConcurrentEffect: Timer: ContextShift](conf: Configuration, app: HttpApp[F]): Stream[F, ExitCode] =
-    for {
-      finalHttpApp <- Stream(Logger.httpApp(logHeaders = conf.log.logHeaders, logBody = conf.log.logBody)(app))
-      exitCode <- BlazeServerBuilder[F](global)
-        .bindHttp(conf.http.port, conf.http.host)
-        .withHttpApp(finalHttpApp)
-        .serve
-    } yield exitCode
+  type FStream[F[_]] = Stream[F, ExitCode]
 
   def run(args: List[String]): IO[ExitCode] =
     for {
@@ -30,11 +23,20 @@ object Main extends IOApp {
       server <- stream[IO](config, app).compile.drain.as(ExitCode.Success)
     } yield server
 
-  def createApplication[F[_]: ConcurrentEffect: ContextShift: Timer](config: Configuration): F[HttpApp[F]] =
+  private def stream[F[_]: ConcurrentEffect: Timer: ContextShift](conf: Configuration, app: HttpApp[F]): FStream[F] =
+    for {
+      finalHttpApp <- Stream(Logger.httpApp(logHeaders = conf.log.logHeaders, logBody = conf.log.logBody)(app))
+      exitCode <- BlazeServerBuilder[F](global)
+        .bindHttp(conf.http.port, conf.http.host)
+        .withHttpApp(finalHttpApp)
+        .serve
+    } yield exitCode
+
+  private def createApplication[F[_]: ConcurrentEffect: ContextShift: Timer](config: Configuration): F[HttpApp[F]] =
     config.application match {
       case ApplicationConfig("in-memory") => createEntrypoint(config, InMemoryStorageHttpApplication[F])
       case ApplicationConfig("mongo") => createEntrypoint(config, MongodbStorageHttpApplication[F])
-      case _ => InMemoryStorageHttpApplication[F].flatMap(_.createEntrypoint(config))
+      case _ => createEntrypoint(config, InMemoryStorageHttpApplication[F])
     }
 
   private def createEntrypoint[F[_]: ConcurrentEffect: ContextShift: Timer](
