@@ -1,25 +1,51 @@
-document.querySelector('form').addEventListener('submit', handleSubmit)
-const ul = document.querySelector('ul')
+const taskList = document.querySelector('ul')
+const taskListItems = document.getElementsByTagName("li")
+const closeButtons = document.getElementsByClassName("close")
 
-function handleSubmit(e) {
-    e.preventDefault();
-    let input = document.querySelector('input');
-    if (input.value !== '') {
-        addNewTodo(input.value)
-    }
-    
-    input.value = ''
+for (let i = 0; i < taskListItems.length; i++) {
+    let span = document.createElement("span")
+    let text = document.createTextNode("\u00D7")
+    span.className = "close"
+    span.appendChild(text)
+    taskListItems[i].appendChild(span)
 }
 
-function addNewTodo(todoValue) {
-    let li = document.createElement('li')
+refreshCloseButtons()
 
-    li.innerHTML = `
-    <span class="todo-item">${todoValue}</span>
-    <button name="checkButton"><i class="fas fa-check-square"></i></button>
-    <button name="deleteButton"><i class="fas fa-trash"></i></button>
-    `;
+taskList.addEventListener('click', function (event) {
+    if (event.target.tagName === 'li') {
+        event.target.classList.toggle('checked')
+    }
+}, false)
 
-    li.classList.add('todo-list-item');
-    ul.appendChild(li);
+function createTask() {
+    const taskInput = document.getElementById("task-input")
+    const listElement = document.createElement("li")
+    const inputValue = taskInput.value
+    const text = document.createTextNode(inputValue)
+
+    listElement.appendChild(text)
+
+    if (inputValue !== '') {
+        document.getElementById("list").appendChild(listElement)
+    }
+
+    taskInput.value = ""
+
+    const closeBtn = document.createElement("span")
+    const closeBtnText = document.createTextNode("\u00D7")
+    closeBtn.className = "close"
+    closeBtn.appendChild(closeBtnText)
+    listElement.appendChild(closeBtn)
+
+    refreshCloseButtons()
+}
+
+function refreshCloseButtons() {
+    for (let i = 0; i < closeButtons.length; i++) {
+        closeButtons[i].onclick = function () {
+            let div = this.parentElement
+            div.style.display = "none"
+        }
+    }
 }

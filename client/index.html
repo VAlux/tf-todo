@@ -12,22 +12,19 @@
 </head>
 
 <body>
-    <div class="container">
-        <h1>Tagless-Final ToDo list</h1>
-        <div class="main">
-            <form action="">
-                <input type="text" placeholder="New task...">
-                <button type="submit">
-                    <i class="fas fa-plus-square"></i>
-                </button>
-            </form>
-            <div class="list">
-                <ul></ul>
-                <a class="clearAll" id="clearAll">Clear All</a>
-            </div>
-        </div>
-        <script type="text/javascript" src="app.js"></script>
-    </div>
-</body>
+   <div class="header">
+       <h2>To Do List</h2>
+       <input type="text" id="task-input" placeholder="Task title...">
+       <span onclick="createTask()" class="createTaskBtn">Add</span>
+   </div> 
 
+   <ul id="list">
+       <li>Task 1</li>
+       <li>Task 2</li>
+       <li>Task 3</li>
+       <li>Task 4</li>
+       <li>Task 5</li>
+   </ul>
+</body>
+<script type="text/javascript" src="app.js"></script>
 </html>
