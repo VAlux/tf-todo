@@ -1,8 +1,9 @@
 package dev.alvo.todo.endpoints
 
 import dev.alvo.todo.model.User
+import dev.alvo.todo.model.authentication.JwtAuthenticationServiceDescriptor
 import dev.alvo.todo.model.response._
-import dev.alvo.todo.service.AuthenticationService
+import dev.alvo.todo.service.authentication.JwtAuthenticationService
 import io.circe.generic.auto._
 import sttp.model.StatusCode
 import sttp.tapir.generic.auto._
@@ -20,11 +21,11 @@ object RootEndpoint {
       .errorOut(errorResponseMapping)
 
   def secureRootV1[F[_]](
-    authenticationService: AuthenticationService[F]
+    authenticationService: JwtAuthenticationService[F]
   ): PartialServerEndpoint[User, Unit, ErrorResponse, Unit, Any, F] =
     rootV1
       .in(auth.bearer[String])
-      .serverLogicForCurrent(authenticationService.authenticate)
+      .serverLogicForCurrent(token => authenticationService.authenticate(JwtAuthenticationServiceDescriptor(token)))
 
   private lazy val errorResponseMapping: EndpointOutput.OneOf[ErrorResponse, ErrorResponse] =
     oneOf[ErrorResponse](

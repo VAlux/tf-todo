@@ -5,7 +5,8 @@ import cats.implicits._
 import dev.alvo.todo.model.User
 import dev.alvo.todo.model.request.CreateTaskRequest
 import dev.alvo.todo.model.response.{ErrorResponse, NotFoundResponse, RetrieveTaskResponse}
-import dev.alvo.todo.service.{AuthenticationService, TodoService}
+import dev.alvo.todo.service.TodoService
+import dev.alvo.todo.service.authentication.JwtAuthenticationService
 import dev.alvo.todo.storage.model.Task
 import sttp.tapir._
 import sttp.tapir.json.circe.jsonBody
@@ -13,7 +14,7 @@ import sttp.tapir.server.PartialServerEndpoint
 
 import scala.language.existentials
 
-class TodoEndpoints[F[_]: Sync](todoService: TodoService[F], authenticationService: AuthenticationService[F]) {
+class TodoEndpoints[F[_]: Sync](todoService: TodoService[F], authenticationService: JwtAuthenticationService[F]) {
 
   private val todoRoot: PartialServerEndpoint[User, Unit, ErrorResponse, Unit, Any, F] =
     RootEndpoint.secureRootV1[F](authenticationService).in("todo")

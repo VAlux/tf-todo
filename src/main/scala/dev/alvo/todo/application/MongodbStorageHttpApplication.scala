@@ -5,10 +5,11 @@ import cats.syntax.flatMap._
 import cats.syntax.functor._
 import dev.alvo.todo.Entrypoint
 import dev.alvo.todo.config.Configuration
-import dev.alvo.todo.database.MongoDb
 import dev.alvo.todo.controller.{SwaggerController, TodoController}
+import dev.alvo.todo.database.MongoDb
 import dev.alvo.todo.endpoints.{OpenApiEndpoints, TodoEndpoints}
-import dev.alvo.todo.service.{AuthenticationService, TodoService}
+import dev.alvo.todo.service.TodoService
+import dev.alvo.todo.service.authentication.JwtAuthenticationService
 import dev.alvo.todo.storage.MongodbTodoStorage
 import utils.UUIDGenerator
 
@@ -20,7 +21,7 @@ object MongodbStorageHttpApplication {
         generator <- UUIDGenerator[F]
         engine <- MongoDb.dsl(config)
         storage <- MongodbTodoStorage[F](engine, generator)
-        authenticationService <- AuthenticationService.create
+        authenticationService <- JwtAuthenticationService.create
         todoService <- TodoService.create(storage)
         todoEndpoints = new TodoEndpoints[F](todoService, authenticationService)
         openApiEndpoints = new OpenApiEndpoints(todoEndpoints)

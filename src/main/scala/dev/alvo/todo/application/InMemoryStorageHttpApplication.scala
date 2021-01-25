@@ -7,7 +7,8 @@ import dev.alvo.todo.Entrypoint
 import dev.alvo.todo.config.Configuration
 import dev.alvo.todo.controller.{SwaggerController, TodoController}
 import dev.alvo.todo.endpoints.{OpenApiEndpoints, TodoEndpoints}
-import dev.alvo.todo.service.{AuthenticationService, TodoService}
+import dev.alvo.todo.service.TodoService
+import dev.alvo.todo.service.authentication.JwtAuthenticationService
 import dev.alvo.todo.storage.InMemoryTodoStorage
 import dev.alvo.todo.storage.model.Task
 import utils.UUIDGenerator
@@ -21,7 +22,7 @@ object InMemoryStorageHttpApplication {
         engine <- Ref.of(Map.empty[String, Task.Existing])
         storage <- InMemoryTodoStorage[F](engine, generator)
         todoService <- TodoService.create(storage)
-        authenticationService <- AuthenticationService.create[F]
+        authenticationService <- JwtAuthenticationService.create[F]
         todoEndpoints = new TodoEndpoints[F](todoService, authenticationService)
         openApiEndpoints = new OpenApiEndpoints(todoEndpoints)
         todoController <- TodoController.create(todoEndpoints)
