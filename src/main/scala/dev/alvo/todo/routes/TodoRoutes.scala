@@ -2,7 +2,7 @@ package dev.alvo.todo.routes
 
 import cats.effect.{Concurrent, ContextShift, Sync, Timer}
 import cats.implicits.toSemigroupKOps
-import dev.alvo.todo.endpoints.TodoEndpoints
+import dev.alvo.todo.endpoints.application.TodoEndpoints
 import org.http4s.HttpRoutes
 import sttp.tapir.server.http4s.RichHttp4sServerEndpoint
 

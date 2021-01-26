@@ -3,8 +3,9 @@ package dev.alvo.todo
 import cats.effect.concurrent.Ref
 import cats.effect.{Concurrent, ContextShift, IO, Sync, Timer}
 import cats.implicits._
-import dev.alvo.todo.endpoints.TodoEndpoints
+import dev.alvo.todo.endpoints.application.TodoEndpoints
 import dev.alvo.todo.model.User
+import dev.alvo.todo.model.authentication.JwtAuthenticationServiceDescriptor
 import dev.alvo.todo.model.response.{ErrorResponse, UnauthorizedResponse}
 import dev.alvo.todo.routes.TodoRoutes
 import dev.alvo.todo.service.TodoService
@@ -34,9 +35,9 @@ class TodoServiceSpec extends org.specs2.mutable.Specification {
   }
 
   private def mockAuthenticationService[F[_]](implicit F: Sync[F]): JwtAuthenticationService[F] =
-    (token: String) =>
+    (descriptor: JwtAuthenticationServiceDescriptor) =>
       F.delay {
-        if (token == "secret") Right(User("email@email.com", "admin"))
+        if (descriptor.token == "secret") Right(User("email@email.com", "admin"))
         else Left(UnauthorizedResponse())
     }
 

@@ -1,7 +1,8 @@
-package dev.alvo.todo.endpoints
+package dev.alvo.todo.endpoints.application
 
 import cats.effect.Sync
 import cats.implicits._
+import dev.alvo.todo.endpoints.RootEndpoint
 import dev.alvo.todo.model.User
 import dev.alvo.todo.model.request.CreateTaskRequest
 import dev.alvo.todo.model.response.{ErrorResponse, NotFoundResponse, RetrieveTaskResponse}
@@ -10,11 +11,12 @@ import dev.alvo.todo.service.authentication.JwtAuthenticationService
 import dev.alvo.todo.storage.model.Task
 import sttp.tapir._
 import sttp.tapir.json.circe.jsonBody
-import sttp.tapir.server.PartialServerEndpoint
+import sttp.tapir.server.{PartialServerEndpoint, ServerEndpoint}
 
 import scala.language.existentials
 
-class TodoEndpoints[F[_]: Sync](todoService: TodoService[F], authenticationService: JwtAuthenticationService[F]) {
+class TodoEndpoints[F[_]: Sync](todoService: TodoService[F], authenticationService: JwtAuthenticationService[F])
+    extends ApplicationEndpoints[F] {
 
   private val todoRoot: PartialServerEndpoint[User, Unit, ErrorResponse, Unit, Any, F] =
     RootEndpoint.secureRootV1[F](authenticationService).in("todo")
@@ -83,4 +85,7 @@ class TodoEndpoints[F[_]: Sync](todoService: TodoService[F], authenticationServi
     task.fold[Either[ErrorResponse, RetrieveTaskResponse]](Left(NotFoundResponse()))(
       task => Right(RetrieveTaskResponse(task.id, task.action))
     )
+
+  override def asSeq(): Seq[ServerEndpoint[_, _, _, _, F]] =
+    Seq(createTask, getTaskById, getAllTasks, updateTask, deleteTaskById, deleteAllTasks)
 }

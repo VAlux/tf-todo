@@ -7,7 +7,8 @@ import dev.alvo.todo.Entrypoint
 import dev.alvo.todo.config.Configuration
 import dev.alvo.todo.controller.{SwaggerController, TodoController}
 import dev.alvo.todo.database.MongoDb
-import dev.alvo.todo.endpoints.{OpenApiEndpoints, TodoEndpoints}
+import dev.alvo.todo.endpoints.OpenApiEndpoints
+import dev.alvo.todo.endpoints.application.TodoEndpoints
 import dev.alvo.todo.service.TodoService
 import dev.alvo.todo.service.authentication.JwtAuthenticationService
 import dev.alvo.todo.storage.MongodbTodoStorage

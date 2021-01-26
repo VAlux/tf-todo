@@ -2,7 +2,7 @@ package dev.alvo.todo.controller
 
 import cats.effect.{Concurrent, ContextShift, Timer}
 import cats.syntax.functor._
-import dev.alvo.todo.endpoints.TodoEndpoints
+import dev.alvo.todo.endpoints.application.TodoEndpoints
 import dev.alvo.todo.routes.TodoRoutes
 
 object TodoController {
