@@ -1,13 +1,14 @@
 package dev.alvo.todo.endpoints
 
 import dev.alvo.todo.model.User
-import dev.alvo.todo.model.authentication.JwtAuthenticationServiceDescriptor
+import dev.alvo.todo.model.authentication.{AuthenticationServiceDescriptor, BasicAuthenticationServiceDescriptor}
 import dev.alvo.todo.model.response._
-import dev.alvo.todo.service.authentication.JwtAuthenticationService
+import dev.alvo.todo.service.authentication.AuthenticationService
 import io.circe.generic.auto._
 import sttp.model.StatusCode
 import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe.jsonBody
+import sttp.tapir.model.UsernamePassword
 import sttp.tapir.server.PartialServerEndpoint
 import sttp.tapir.{endpoint, _}
 
@@ -21,11 +22,16 @@ object RootEndpoint {
       .errorOut(errorResponseMapping)
 
   def secureRootV1[F[_]](
-    authenticationService: JwtAuthenticationService[F]
+    authenticationService: AuthenticationService[F, AuthenticationServiceDescriptor]
   ): PartialServerEndpoint[User, Unit, ErrorResponse, Unit, Any, F] =
     rootV1
-      .in(auth.bearer[String])
-      .serverLogicForCurrent(token => authenticationService.authenticate(JwtAuthenticationServiceDescriptor(token)))
+      .in(auth.basic[UsernamePassword])
+      .serverLogicForCurrent(
+        basic =>
+          authenticationService.authenticate(BasicAuthenticationServiceDescriptor(basic.username, basic.password))
+//      .in(auth.bearer[String])
+//      .serverLogicForCurrent(token => authenticationService.authenticate(JwtAuthenticationServiceDescriptor(token)))
+      )
 
   private lazy val errorResponseMapping: EndpointOutput.OneOf[ErrorResponse, ErrorResponse] =
     oneOf[ErrorResponse](

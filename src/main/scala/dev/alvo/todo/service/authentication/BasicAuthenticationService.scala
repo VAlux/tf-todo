@@ -1,6 +1,7 @@
 package dev.alvo.todo.service.authentication
 
 import cats.effect.Sync
+import com.github.t3hnar.bcrypt._
 import dev.alvo.todo.model.User
 import dev.alvo.todo.model.authentication.BasicAuthenticationServiceDescriptor
 import dev.alvo.todo.model.response.{ErrorResponse, UnauthorizedResponse}
@@ -9,12 +10,20 @@ trait BasicAuthenticationService[F[_]] extends AuthenticationService[F, BasicAut
 
 object BasicAuthenticationService {
   def create[F[_]](implicit F: Sync[F]): F[BasicAuthenticationService[F]] = F.delay(
-    (descriptor: BasicAuthenticationServiceDescriptor) => dummySecurity(descriptor.username, descriptor.password)
+    (descriptor: BasicAuthenticationServiceDescriptor) => authenticate(descriptor.username, descriptor.password)
   )
 
-  def dummySecurity[F[_]](username: String, password: String)(implicit F: Sync[F]): F[Either[ErrorResponse, User]] =
-    F.delay {
-      if (username == "admin" && password == "secret") Right(User("email@email.com", "admin"))
-      else Left(UnauthorizedResponse())
-    }
+  def authenticate[F[_]](username: String, password: Option[String])(
+    implicit F: Sync[F]
+  ): F[Either[ErrorResponse, User]] =
+    F.delay(dummyAuthentication(username, password))
+
+  private def dummyAuthentication[F[_]](
+    username: String,
+    password: Option[String]
+  ): Either[UnauthorizedResponse, User] =
+    if (username == "admin" && password.exists(hash => "pass".isBcryptedSafe(hash).getOrElse(false)))
+      Right(User("email@email.com", "admin"))
+    else
+      Left(UnauthorizedResponse())
 }
