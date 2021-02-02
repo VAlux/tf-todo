@@ -4,8 +4,9 @@ import cats.effect.Sync
 import cats.syntax.functor._
 import dev.alvo.user.endpoints.RootEndpoint
 import dev.alvo.user.model.User
+import dev.alvo.user.model.request.RegisterUserRequest
 import dev.alvo.user.model.response.ErrorResponse.UserErrorResponse.NotFoundResponse
-import dev.alvo.user.model.response.{ErrorResponse, RegisterUserRequest, RegisterUserResponse, RetrieveUserResponse}
+import dev.alvo.user.model.response.{ErrorResponse, RegisterUserResponse, RetrieveUserResponse}
 import dev.alvo.user.service.user.UserService
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.ServerEndpoint

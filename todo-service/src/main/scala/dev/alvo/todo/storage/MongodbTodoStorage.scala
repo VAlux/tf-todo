@@ -3,11 +3,11 @@ package dev.alvo.todo.storage
 import cats.effect.{Async, ContextShift}
 import dev.alvo.mongodb.MongoDb
 import dev.alvo.mongodb.MongoDb.FutureOps
+import dev.alvo.shared.util.UUIDGenerator
 import dev.alvo.todo.storage.model.{Existing, New}
 import jdk.internal.org.jline.utils.ShutdownHooks.Task
 import reactivemongo.api.bson.collection.BSONCollection
 import reactivemongo.api.bson.{BSONDocument, BSONDocumentReader, BSONDocumentWriter, Macros}
-import utils.UUIDGenerator
 
 import scala.concurrent.ExecutionContext
 

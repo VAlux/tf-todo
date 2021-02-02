@@ -4,7 +4,7 @@ import cats.effect.{Async, ConcurrentEffect, ContextShift, Sync, Timer}
 import cats.syntax.flatMap._
 import cats.syntax.functor._
 import dev.alvo.mongodb.MongoDb
-import dev.alvo.shared.config.ConfigurationLoader
+import dev.alvo.shared.util.UUIDGenerator
 import dev.alvo.todo.Entrypoint
 import dev.alvo.todo.config.TodoConfiguration
 import dev.alvo.todo.controller.{SwaggerController, TodoController}
@@ -13,7 +13,6 @@ import dev.alvo.todo.endpoints.application.TodoEndpoints
 import dev.alvo.todo.service.TodoService
 import dev.alvo.todo.service.authentication.JwtAuthenticationService
 import dev.alvo.todo.storage.MongodbTodoStorage
-import utils.UUIDGenerator
 
 import scala.concurrent.ExecutionContext
 

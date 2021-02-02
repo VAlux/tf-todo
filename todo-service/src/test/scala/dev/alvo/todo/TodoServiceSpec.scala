@@ -3,6 +3,7 @@ package dev.alvo.todo
 import cats.effect.concurrent.Ref
 import cats.effect.{Concurrent, ContextShift, IO, Sync, Timer}
 import cats.implicits._
+import dev.alvo.shared.util.UUIDGenerator
 import dev.alvo.todo.endpoints.application.TodoEndpoints
 import dev.alvo.todo.model.User
 import dev.alvo.todo.model.authentication.JwtAuthenticationServiceDescriptor
@@ -15,7 +16,6 @@ import dev.alvo.todo.storage.model.{Existing, Task}
 import org.http4s._
 import org.http4s.implicits._
 import org.specs2.matcher.MatchResult
-import utils.UUIDGenerator
 
 import scala.concurrent.ExecutionContext
 

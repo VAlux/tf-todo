@@ -1,8 +1,8 @@
-package utils
-
-import java.util.UUID
+package dev.alvo.shared.util
 
 import cats.effect.Sync
+
+import java.util.UUID
 
 trait UUIDGenerator[F[_]] {
   def generate: F[UUID]

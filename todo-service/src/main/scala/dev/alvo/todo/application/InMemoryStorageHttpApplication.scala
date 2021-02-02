@@ -3,6 +3,7 @@ package dev.alvo.todo.application
 import cats.effect.concurrent.Ref
 import cats.effect.{ConcurrentEffect, ContextShift, Sync, Timer}
 import cats.syntax.all._
+import dev.alvo.shared.util.UUIDGenerator
 import dev.alvo.todo.Entrypoint
 import dev.alvo.todo.config.TodoConfiguration
 import dev.alvo.todo.controller.{SwaggerController, TodoController}
@@ -12,7 +13,6 @@ import dev.alvo.todo.service.TodoService
 import dev.alvo.todo.service.authentication.JwtAuthenticationService
 import dev.alvo.todo.storage.InMemoryTodoStorage
 import dev.alvo.todo.storage.model.Existing
-import utils.UUIDGenerator
 
 object InMemoryStorageHttpApplication {
 

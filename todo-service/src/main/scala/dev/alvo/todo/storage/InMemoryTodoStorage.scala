@@ -3,8 +3,8 @@ package dev.alvo.todo.storage
 import cats.effect.Sync
 import cats.effect.concurrent.Ref
 import cats.implicits._
+import dev.alvo.shared.util.UUIDGenerator
 import dev.alvo.todo.storage.model.{Existing, New, Task}
-import utils.UUIDGenerator
 
 object InMemoryTodoStorage {
   def apply[F[_]](storage: Ref[F, Map[String, Existing]], uuid: UUIDGenerator[F])(
