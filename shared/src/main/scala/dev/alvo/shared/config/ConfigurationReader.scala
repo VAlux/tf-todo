@@ -3,7 +3,6 @@ package dev.alvo.shared.config
 import cats.effect.Sync
 import pureconfig._
 import pureconfig.error.ConfigReaderFailures
-import pureconfig.generic.ProductHint
 
 trait ConfigurationReader[F[_], C] {
   def loadConfiguration(configSource: ConfigSource): F[C]
@@ -12,9 +11,6 @@ trait ConfigurationReader[F[_], C] {
 object ConfigurationReader {
   import cats.syntax.flatMap._
   import cats.syntax.functor._
-
-  //scalafix:off RemoveUnused
-  implicit private[this] def hint[A]: ProductHint[A] = ProductHint[A](ConfigFieldMapping(CamelCase, CamelCase))
 
   def apply[F[_], C](implicit F: Sync[F], loader: ConfigurationLoader[C]): F[ConfigurationReader[F, C]] = F.delay {
     (configSource: ConfigSource) =>

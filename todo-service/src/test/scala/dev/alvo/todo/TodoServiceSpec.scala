@@ -11,7 +11,7 @@ import dev.alvo.todo.routes.TodoRoutes
 import dev.alvo.todo.service.TodoService
 import dev.alvo.todo.service.authentication.JwtAuthenticationService
 import dev.alvo.todo.storage.InMemoryTodoStorage
-import dev.alvo.todo.storage.model.Task
+import dev.alvo.todo.storage.model.{Existing, Task}
 import org.http4s._
 import org.http4s.implicits._
 import org.specs2.matcher.MatchResult
