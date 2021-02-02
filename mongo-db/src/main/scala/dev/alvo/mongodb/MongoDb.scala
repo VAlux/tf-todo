@@ -2,7 +2,7 @@ package dev.alvo.mongodb
 
 import cats.effect.{Async, ContextShift}
 import dev.alvo.mongodb.config.MongoBaseConfig
-import dev.alvo.shared.config.Configuration
+import dev.alvo.shared.config.ConfigurationLoader
 import reactivemongo.api.{AsyncDriver, DB, MongoConnection}
 
 import scala.concurrent.{ExecutionContext, Future}

@@ -5,11 +5,6 @@ import pureconfig._
 import pureconfig.error.ConfigReaderFailures
 import pureconfig.generic.ProductHint
 
-trait Configuration[C] {
-  def loadConfig(configSource: ConfigSource): ConfigReader.Result[C]
-  def default: C
-}
-
 trait ConfigurationReader[F[_], C] {
   def loadConfiguration(configSource: ConfigSource): F[C]
 }
@@ -21,7 +16,7 @@ object ConfigurationReader {
   //scalafix:off RemoveUnused
   implicit private[this] def hint[A]: ProductHint[A] = ProductHint[A](ConfigFieldMapping(CamelCase, CamelCase))
 
-  def apply[F[_], C](implicit F: Sync[F], loader: Configuration[C]): F[ConfigurationReader[F, C]] = F.delay {
+  def apply[F[_], C](implicit F: Sync[F], loader: ConfigurationLoader[C]): F[ConfigurationReader[F, C]] = F.delay {
     (configSource: ConfigSource) =>
       F.delay(loader.loadConfig(configSource))
         .flatMap(_.fold(error => processConfigurationLoadingError[F, C](error, loader.default), F.pure[C]))

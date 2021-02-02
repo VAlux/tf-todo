@@ -4,7 +4,7 @@ import cats.effect.{Async, ConcurrentEffect, ContextShift, Sync, Timer}
 import cats.syntax.flatMap._
 import cats.syntax.functor._
 import dev.alvo.mongodb.MongoDb
-import dev.alvo.shared.config.Configuration
+import dev.alvo.shared.config.ConfigurationLoader
 import dev.alvo.todo.Entrypoint
 import dev.alvo.todo.config.TodoConfiguration
 import dev.alvo.todo.controller.{SwaggerController, TodoController}

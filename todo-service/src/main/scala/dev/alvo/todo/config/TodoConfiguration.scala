@@ -1,7 +1,7 @@
 package dev.alvo.todo.config
 
 import dev.alvo.mongodb.config.MongoBaseConfig
-import dev.alvo.shared.config.Configuration
+import dev.alvo.shared.config.ConfigurationLoader
 import pureconfig.ConfigReader.Result
 import pureconfig.ConfigSource
 import pureconfig.generic.auto._
@@ -18,7 +18,7 @@ case class TodoConfiguration(
 )
 
 object TodoConfiguration {
-  implicit object TodoConfigurationLoader extends Configuration[TodoConfiguration] {
+  implicit object TodoConfigurationLoader extends ConfigurationLoader[TodoConfiguration] {
     override def loadConfig(configSource: ConfigSource): Result[TodoConfiguration] =
       configSource.load[TodoConfiguration]
 
