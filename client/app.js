@@ -1,10 +1,12 @@
+"use strict"
+
 const taskList = document.querySelector('ul')
 const taskListItems = document.getElementsByTagName("li")
 const closeButtons = document.getElementsByClassName("close")
 
 for (let i = 0; i < taskListItems.length; i++) {
-    let span = document.createElement("span")
-    let text = document.createTextNode("\u00D7")
+    const span = document.createElement("span")
+    const text = document.createTextNode("\u00D7")
     span.className = "close"
     span.appendChild(text)
     taskListItems[i].appendChild(span)
@@ -44,8 +46,7 @@ function createTask() {
 function refreshCloseButtons() {
     for (let i = 0; i < closeButtons.length; i++) {
         closeButtons[i].onclick = function () {
-            let div = this.parentElement
-            div.style.display = "none"
+            this.parentElement.remove()
         }
     }
 }

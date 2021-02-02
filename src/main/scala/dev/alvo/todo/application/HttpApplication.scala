@@ -1,8 +1,0 @@
-package dev.alvo.todo.application
-
-import dev.alvo.todo.config.Configuration
-import org.http4s.HttpApp
-
-trait HttpApplication[F[_]] {
-  def createEntrypoint(config: Configuration): F[HttpApp[F]]
-}
