@@ -101,3 +101,7 @@ scalacOptions ++= Seq(
   "-Wunused",
   "-Yrangepos"
 )
+
+addCommandAlias("cd", "project")
+addCommandAlias("ls", "projects")
+addCommandAlias("c", "compile")
