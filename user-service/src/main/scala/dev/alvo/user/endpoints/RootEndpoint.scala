@@ -7,13 +7,14 @@ import dev.alvo.user.model.response.ErrorResponse.UserErrorResponse.{
   UnauthorizedResponse
 }
 import dev.alvo.user.model.response._
-import io.circe.generic.auto._
 import sttp.model.StatusCode
-import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.{endpoint, _}
 
 object RootEndpoint {
+
+  import io.circe.generic.auto._
+  import sttp.tapir.generic.auto._
 
   val rootV1: Endpoint[Unit, ErrorResponse, Unit, Any] =
     endpoint
@@ -22,7 +23,7 @@ object RootEndpoint {
       .in("api" / "v1")
       .errorOut(errorResponseMapping)
 
-  private lazy val errorResponseMapping: EndpointOutput.OneOf[ErrorResponse, ErrorResponse] =
+  private lazy val errorResponseMapping: EndpointOutput.Single[ErrorResponse] =
     oneOf[ErrorResponse](
       statusMapping(
         StatusCode.NotFound,

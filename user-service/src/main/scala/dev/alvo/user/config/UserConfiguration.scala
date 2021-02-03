@@ -1,7 +1,7 @@
 package dev.alvo.user.config
 
 import dev.alvo.mongodb.config.MongoBaseConfig
-import dev.alvo.shared.config.ConfigurationLoader
+import dev.alvo.shared.config.ConfigurationLoader.PureconfigConfigurationLoader
 import pureconfig.ConfigReader.Result
 import pureconfig.generic.ProductHint
 import pureconfig.{CamelCase, ConfigFieldMapping, ConfigSource}
@@ -17,7 +17,7 @@ object UserConfiguration {
   //scalafix:off RemoveUnused
   implicit private[this] def hint[A]: ProductHint[A] = ProductHint[A](ConfigFieldMapping(CamelCase, CamelCase))
 
-  implicit object UserConfigurationLoader extends ConfigurationLoader[UserConfiguration] {
+  implicit object UserConfigurationLoader extends PureconfigConfigurationLoader[UserConfiguration] {
     override def loadConfig(configSource: ConfigSource): Result[UserConfiguration] =
       configSource.load[UserConfiguration]
 

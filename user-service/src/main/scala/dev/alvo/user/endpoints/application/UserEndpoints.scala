@@ -5,7 +5,7 @@ import cats.syntax.functor._
 import dev.alvo.user.endpoints.RootEndpoint
 import dev.alvo.user.model.User
 import dev.alvo.user.model.request.RegisterUserRequest
-import dev.alvo.user.model.response.ErrorResponse.UserErrorResponse.NotFoundResponse
+import dev.alvo.user.model.response.ErrorResponse.UserErrorResponse.{NotFoundResponse, UserNotRegisteredResponse}
 import dev.alvo.user.model.response.{ErrorResponse, RegisterUserResponse, RetrieveUserResponse}
 import dev.alvo.user.service.user.UserService
 import sttp.tapir.json.circe.jsonBody
@@ -38,14 +38,22 @@ class UserEndpoints[F[_]: Sync](userService: UserService[F]) extends Application
       .out(jsonBody[RetrieveUserResponse])
       .serverLogic(email => userService.disableUser(email).map(toRetrieveUserResponse))
 
-  private def toResponse[I, A](input: Option[I], f: I => A): Either[ErrorResponse, A] =
-    input.fold[Either[ErrorResponse, A]](Left(NotFoundResponse()))(input => Right(f(input)))
+  private def toResponse[I, R](input: Option[I], f: I => R, error: ErrorResponse): Either[ErrorResponse, R] =
+    input.fold[Either[ErrorResponse, R]](Left(error))(input => Right(f(input)))
 
   private def toRetrieveUserResponse(user: Option[User]): Either[ErrorResponse, RetrieveUserResponse] =
-    toResponse[User, RetrieveUserResponse](user, user => RetrieveUserResponse(user.email, user.name))
+    toResponse[User, RetrieveUserResponse](
+      user,
+      user => RetrieveUserResponse(user.email, user.name),
+      NotFoundResponse()
+    )
 
   private def toRegisteredUserResponse(user: Option[User]): Either[ErrorResponse, RegisterUserResponse] =
-    toResponse[User, RegisterUserResponse](user, user => RegisterUserResponse(user.email, user.name))
+    toResponse[User, RegisterUserResponse](
+      user,
+      user => RegisterUserResponse(user.email, user.name),
+      UserNotRegisteredResponse()
+    )
 
   override def asSeq(): Seq[ServerEndpoint[_, _, _, _, F]] = Seq(findUser)
 }

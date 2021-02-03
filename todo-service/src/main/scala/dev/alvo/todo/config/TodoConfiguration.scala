@@ -1,7 +1,7 @@
 package dev.alvo.todo.config
 
 import dev.alvo.mongodb.config.MongoBaseConfig
-import dev.alvo.shared.config.ConfigurationLoader
+import dev.alvo.shared.config.ConfigurationLoader.PureconfigConfigurationLoader
 import pureconfig.ConfigReader.Result
 import pureconfig.generic.ProductHint
 import pureconfig.{CamelCase, ConfigFieldMapping, ConfigSource}
@@ -23,7 +23,7 @@ object TodoConfiguration {
   //scalafix:off RemoveUnused
   implicit private[this] def hint[A]: ProductHint[A] = ProductHint[A](ConfigFieldMapping(CamelCase, CamelCase))
 
-  implicit object TodoConfigurationLoader extends ConfigurationLoader[TodoConfiguration] {
+  implicit object TodoConfigurationLoader extends PureconfigConfigurationLoader[TodoConfiguration] {
     override def loadConfig(configSource: ConfigSource): Result[TodoConfiguration] =
       configSource.load[TodoConfiguration]
 

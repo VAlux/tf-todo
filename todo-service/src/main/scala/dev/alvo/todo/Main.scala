@@ -10,6 +10,7 @@ import org.http4s.HttpApp
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.server.middleware.Logger
 import pureconfig.ConfigSource
+import pureconfig.error.ConfigReaderFailures
 
 import java.util.concurrent.Executors
 import scala.concurrent.ExecutionContext
@@ -21,7 +22,9 @@ object Main extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] =
     for {
-      config <- ConfigurationReader[IO, TodoConfiguration].flatMap(_.loadConfiguration(ConfigSource.default))
+      config <- ConfigurationReader[IO, ConfigSource, TodoConfiguration, ConfigReaderFailures].flatMap(
+        _.loadConfiguration(ConfigSource.default)
+      )
       app <- createApplication[IO](config)
       server <- stream[IO](config, app).compile.drain.as(ExitCode.Success)
     } yield server

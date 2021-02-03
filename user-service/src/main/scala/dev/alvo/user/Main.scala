@@ -3,13 +3,14 @@ package dev.alvo.user
 import cats.effect.{ConcurrentEffect, ContextShift, ExitCode, IO, IOApp, Timer}
 import cats.syntax.flatMap._
 import dev.alvo.shared.config.ConfigurationReader
-import dev.alvo.user.application.{HttpApplication, UserHttpApplication}
+import dev.alvo.user.application.UserHttpApplication
 import dev.alvo.user.config.UserConfiguration
 import fs2.Stream
 import org.http4s.HttpApp
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.server.middleware.Logger
 import pureconfig.ConfigSource
+import pureconfig.error.ConfigReaderFailures
 
 import java.util.concurrent.Executors
 import scala.concurrent.ExecutionContext.global
@@ -24,7 +25,9 @@ object Main extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] =
     for {
-      config <- ConfigurationReader[IO, UserConfiguration].flatMap(_.loadConfiguration(ConfigSource.default))
+      config <- ConfigurationReader[IO, ConfigSource, UserConfiguration, ConfigReaderFailures].flatMap(
+        _.loadConfiguration(ConfigSource.default)
+      )
       app <- createApplication[IO](config)
       server <- stream[IO](config, app).compile.drain.as(ExitCode.Success)
     } yield server
