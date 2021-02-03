@@ -30,7 +30,7 @@ object ConfigurationReader {
         )
     }
 
-  def processConfigurationLoadingError[F[_], C, E](error: String, default: C)(implicit F: Sync[F]): F[C] =
+  private def processConfigurationLoadingError[F[_], C, E](error: String, default: C)(implicit F: Sync[F]): F[C] =
     for {
       _ <- F.delay(Console.err.println("Error reading configuration:"))
       _ <- F.delay(Console.err.println(error))

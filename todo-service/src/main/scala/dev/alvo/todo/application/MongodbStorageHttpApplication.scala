@@ -10,9 +10,9 @@ import dev.alvo.todo.config.TodoConfiguration
 import dev.alvo.todo.controller.{SwaggerController, TodoController}
 import dev.alvo.todo.endpoints.OpenApiEndpoints
 import dev.alvo.todo.endpoints.application.TodoEndpoints
+import dev.alvo.todo.repository.MongodbTodoRepository
 import dev.alvo.todo.service.TodoService
 import dev.alvo.todo.service.authentication.JwtAuthenticationService
-import dev.alvo.todo.storage.MongodbTodoStorage
 
 import scala.concurrent.ExecutionContext
 
@@ -24,13 +24,13 @@ object MongodbStorageHttpApplication {
     for {
       generator <- UUIDGenerator[F]
       engine <- MongoDb(config.mongo)(implicitly[ContextShift[F]], implicitly[Async[F]], ec)
-      storage <- MongodbTodoStorage[F](engine, generator)(implicitly[ContextShift[F]], implicitly[Async[F]], ec)
+      storage <- MongodbTodoRepository[F](engine, generator)(implicitly[ContextShift[F]], implicitly[Async[F]], ec)
       authenticationService <- JwtAuthenticationService.create
-      todoService <- TodoService.create(storage)
+      todoService <- TodoService(storage)
       todoEndpoints = new TodoEndpoints[F](todoService, authenticationService)
       openApiEndpoints = new OpenApiEndpoints(todoEndpoints)
-      todoController <- TodoController.create(todoEndpoints)
-      swaggerController <- SwaggerController.create(openApiEndpoints)
+      todoController <- TodoController(todoEndpoints)
+      swaggerController <- SwaggerController(openApiEndpoints)
     } yield Entrypoint.forControllers(todoController, swaggerController)
   }
 }

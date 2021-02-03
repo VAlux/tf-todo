@@ -3,8 +3,8 @@ package dev.alvo.todo.service
 import cats.effect.Sync
 import cats.syntax.functor._
 import dev.alvo.todo.model.request.CreateTaskRequest
-import dev.alvo.todo.storage.TodoStorage
-import dev.alvo.todo.storage.model.{Existing, New, Task}
+import dev.alvo.todo.repository.TodoRepository
+import dev.alvo.todo.repository.model.{Existing, New, Task}
 
 trait TodoService[F[_]] {
 
@@ -22,7 +22,7 @@ trait TodoService[F[_]] {
 }
 
 object TodoService {
-  def create[F[_]](todo: TodoStorage[F])(implicit F: Sync[F]): F[TodoService[F]] = F.delay {
+  def apply[F[_]](todo: TodoRepository[F])(implicit F: Sync[F]): F[TodoService[F]] = F.delay {
     new TodoService[F] {
       override def createTask(request: CreateTaskRequest): F[Option[Existing]] =
         todo.add(New(request.action))

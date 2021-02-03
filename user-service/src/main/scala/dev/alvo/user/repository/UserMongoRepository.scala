@@ -1,4 +1,4 @@
-package dev.alvo.user.service.user
+package dev.alvo.user.repository
 
 import cats.effect.{Async, ContextShift}
 import dev.alvo.mongodb.MongoDb
@@ -9,22 +9,14 @@ import reactivemongo.api.bson.{BSONDocument, BSONDocumentReader, BSONDocumentWri
 
 import scala.concurrent.ExecutionContext
 
-trait UserService[F[_]] {
-  def findUserByEmail(email: String): F[Option[User]]
-
-  def registerUser(user: User): F[Option[User]]
-
-  def disableUser(email: String): F[Option[User]]
-}
-
-object UserService {
+object UserMongoRepository {
   import cats.syntax.apply._
   import cats.syntax.flatMap._
   import cats.syntax.functor._
 
-  def apply[F[_]: ContextShift](mongo: MongoDb[F])(implicit F: Async[F], ec: ExecutionContext): F[UserService[F]] =
+  def apply[F[_]: ContextShift](mongo: MongoDb[F])(implicit F: Async[F], ec: ExecutionContext): F[UserRepository[F]] =
     mongo.getDatabase("user").map(_.collection[BSONCollection]("profiles")).map { profiles =>
-      new UserService[F] {
+      new UserRepository[F] {
 
         implicit val userWriter: BSONDocumentWriter[User] = Macros.writer
         implicit val userReader: BSONDocumentReader[User] = Macros.reader

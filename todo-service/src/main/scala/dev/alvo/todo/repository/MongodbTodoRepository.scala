@@ -1,17 +1,17 @@
-package dev.alvo.todo.storage
+package dev.alvo.todo.repository
 
 import cats.effect.{Async, ContextShift}
 import dev.alvo.mongodb.MongoDb
 import dev.alvo.mongodb.MongoDb.FutureOps
 import dev.alvo.shared.util.UUIDGenerator
-import dev.alvo.todo.storage.model.{Existing, New}
+import dev.alvo.todo.repository.model.{Existing, New}
 import jdk.internal.org.jline.utils.ShutdownHooks.Task
 import reactivemongo.api.bson.collection.BSONCollection
 import reactivemongo.api.bson.{BSONDocument, BSONDocumentReader, BSONDocumentWriter, Macros}
 
 import scala.concurrent.ExecutionContext
 
-object MongodbTodoStorage {
+object MongodbTodoRepository {
 
   import cats.syntax.flatMap._
   import cats.syntax.functor._
@@ -20,9 +20,9 @@ object MongodbTodoStorage {
     implicit
     F: Async[F],
     ec: ExecutionContext
-  ): F[TodoStorage[F]] =
+  ): F[TodoRepository[F]] =
     mongoDsl.getDatabase("todo").map(_.collection[BSONCollection]("todos")).map { todos =>
-      new TodoStorage[F] {
+      new TodoRepository[F] {
 
         implicit val taskWriter: BSONDocumentWriter[Existing] = Macros.writer[Existing]
         implicit val taskReader: BSONDocumentReader[Existing] = Macros.reader[Existing]

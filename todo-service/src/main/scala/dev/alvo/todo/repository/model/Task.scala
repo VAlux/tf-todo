@@ -1,4 +1,4 @@
-package dev.alvo.todo.storage.model
+package dev.alvo.todo.repository.model
 
 sealed abstract class Task(action: String)
 

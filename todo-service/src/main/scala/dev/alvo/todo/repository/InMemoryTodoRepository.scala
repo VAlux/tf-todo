@@ -1,18 +1,18 @@
-package dev.alvo.todo.storage
+package dev.alvo.todo.repository
 
 import cats.effect.Sync
 import cats.effect.concurrent.Ref
 import cats.implicits._
 import dev.alvo.shared.util.UUIDGenerator
-import dev.alvo.todo.storage.model.{Existing, New, Task}
+import dev.alvo.todo.repository.model.{Existing, New, Task}
 
-object InMemoryTodoStorage {
+object InMemoryTodoRepository {
   def apply[F[_]](storage: Ref[F, Map[String, Existing]], uuid: UUIDGenerator[F])(
     implicit
     F: Sync[F]
-  ): F[TodoStorage[F]] =
+  ): F[TodoRepository[F]] =
     F.delay {
-      new TodoStorage[F] {
+      new TodoRepository[F] {
         override def add(task: New): F[Option[Existing]] =
           for {
             id <- uuid.generate.map(_.toString)

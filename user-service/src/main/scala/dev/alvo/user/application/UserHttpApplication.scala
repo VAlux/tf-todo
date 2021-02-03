@@ -5,7 +5,8 @@ import dev.alvo.user.Entrypoint
 import dev.alvo.user.config.UserConfiguration
 import dev.alvo.user.controller.UserController
 import dev.alvo.user.endpoints.application.UserEndpoints
-import dev.alvo.user.service.user.UserService
+import dev.alvo.user.repository.UserMongoRepository
+import dev.alvo.user.service.UserService
 
 import scala.concurrent.ExecutionContext
 
@@ -19,7 +20,8 @@ object UserHttpApplication {
     F.delay { (config: UserConfiguration) =>
       for {
         storage <- MongoDb(config.mongo)(implicitly[ContextShift[F]], implicitly[Async[F]], ec)
-        userService <- UserService(storage)(implicitly[ContextShift[F]], implicitly[Async[F]], ec)
+        repository <- UserMongoRepository(storage)(implicitly[ContextShift[F]], implicitly[Async[F]], ec)
+        userService <- UserService(repository)
         endpoints = new UserEndpoints[F](userService)
         userController <- UserController(endpoints)
       } yield Entrypoint.forControllers(userController)

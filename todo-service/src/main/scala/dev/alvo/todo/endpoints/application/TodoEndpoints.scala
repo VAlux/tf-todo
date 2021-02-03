@@ -8,7 +8,7 @@ import dev.alvo.todo.model.request.CreateTaskRequest
 import dev.alvo.todo.model.response.{ErrorResponse, NotFoundResponse, RetrieveTaskResponse}
 import dev.alvo.todo.service.TodoService
 import dev.alvo.todo.service.authentication.JwtAuthenticationService
-import dev.alvo.todo.storage.model.{Existing, Task}
+import dev.alvo.todo.repository.model.{Existing, Task}
 import sttp.tapir._
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.{PartialServerEndpoint, ServerEndpoint}

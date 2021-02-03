@@ -11,8 +11,8 @@ import dev.alvo.todo.model.response.UnauthorizedResponse
 import dev.alvo.todo.routes.TodoRoutes
 import dev.alvo.todo.service.TodoService
 import dev.alvo.todo.service.authentication.JwtAuthenticationService
-import dev.alvo.todo.storage.InMemoryTodoStorage
-import dev.alvo.todo.storage.model.{Existing, Task}
+import dev.alvo.todo.repository.InMemoryTodoRepository
+import dev.alvo.todo.repository.model.{Existing, Task}
 import org.http4s._
 import org.http4s.implicits._
 import org.specs2.matcher.MatchResult
@@ -45,7 +45,7 @@ class TodoServiceSpec extends org.specs2.mutable.Specification {
     for {
       generator <- UUIDGenerator[F]
       engine <- Ref.of(Map.empty[String, Existing])
-      storage <- InMemoryTodoStorage(engine, generator)
+      storage <- InMemoryTodoRepository(engine, generator)
       service <- TodoService.create(storage)
       endpoints = new TodoEndpoints[F](service, mockAuthenticationService)
       todo <- TodoRoutes.create(endpoints).flatMap(_.routes.orNotFound(request))

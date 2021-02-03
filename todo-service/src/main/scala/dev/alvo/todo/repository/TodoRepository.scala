@@ -1,8 +1,8 @@
-package dev.alvo.todo.storage
+package dev.alvo.todo.repository
 
-import dev.alvo.todo.storage.model.{Existing, New, Task}
+import dev.alvo.todo.repository.model.{Existing, New, Task}
 
-trait TodoStorage[F[_]] {
+trait TodoRepository[F[_]] {
   def add(task: New): F[Option[Existing]]
 
   def get(id: String): F[Option[Existing]]

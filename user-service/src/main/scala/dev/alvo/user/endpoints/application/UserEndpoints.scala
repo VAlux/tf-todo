@@ -7,7 +7,7 @@ import dev.alvo.user.model.User
 import dev.alvo.user.model.request.RegisterUserRequest
 import dev.alvo.user.model.response.ErrorResponse.UserErrorResponse.{NotFoundResponse, UserNotRegisteredResponse}
 import dev.alvo.user.model.response.{ErrorResponse, RegisterUserResponse, RetrieveUserResponse}
-import dev.alvo.user.service.user.UserService
+import dev.alvo.user.service.UserService
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.ServerEndpoint
 import sttp.tapir.{Endpoint, _}
