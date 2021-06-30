@@ -10,12 +10,16 @@ object UserInMemoryRepository {
   import cats.syntax.flatMap._
 
   def apply[F[_]](storage: Ref[F, Map[String, User]])(implicit F: Sync[F]): F[UserRepository[F]] = F.delay {
+
+    def updateUser(email: String, user: User): F[Option[User]] =
+      storage.update(_.updated(email, user)) *> storage.get.map(_.get(email))
+
     new UserRepository[F] {
       override def findUserByEmail(email: String): F[Option[User]] =
         storage.get.map(_.get(email))
 
       override def registerUser(user: User): F[Option[User]] =
-        storage.update(_.updated(user.email, user)) *> findUserByEmail(user.email)
+        updateUser(user.email, user)
 
       override def disableUser(email: String): F[Option[User]] =
         findUserByEmail(email).map(

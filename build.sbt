@@ -29,12 +29,9 @@ val webserviceDependencies = Seq(
 
 inThisBuild(
   List(
-    scalaVersion := "2.13.2",
+    scalaVersion := "2.13.6",
     organization := "dev.alvo",
     scalafmtOnCompile := true,
-    semanticdbEnabled := true,
-    semanticdbVersion := scalafixSemanticdb.revision,
-    scalafixScalaBinaryVersion := "2.13",
     addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3"),
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
   )
@@ -105,3 +102,4 @@ scalacOptions ++= Seq(
 addCommandAlias("cd", "project")
 addCommandAlias("ls", "projects")
 addCommandAlias("c", "compile")
+addCommandAlias("r", "reload")
